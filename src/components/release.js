@@ -262,7 +262,7 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-          />
+        />
         : content}
     </>
   )

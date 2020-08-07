@@ -420,7 +420,7 @@ export const SongDetail = () => {
         ? <SongForm
           targetId={id}
           setSubmitting={setUpdating}
-        />
+          />
         : <Content />}
     </>
   )
