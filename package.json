@@ -7,12 +7,14 @@
     "lint": "prettier --check \"src/**/*.{js,jsx}\""
   },
   "dependencies": {
-    "bulmaswatch": "^0.8.1",  
+    "bulmaswatch": "^0.8.1",
+    "date-fns": "^2.15.0",
     "lodash": "^4.17.19",
     "rbx": "^2.2.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "tslib": "^2.0.1"
   },
   "devDependencies": {
     "@snowpack/app-scripts-react": "^1.4.0",

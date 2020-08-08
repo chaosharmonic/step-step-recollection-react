@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { Button, Field, Control, Label, Input, Select, Title, Table } from 'rbx'
+import { format } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
 
@@ -92,7 +93,7 @@ export const Session = () => {
     return (
       <Table.Row key={id}>
         <Table.Cell>
-          <Link to={`/session/${id}`}>{sessionDate}</Link>
+          <Link to={`/session/${id}`}>{format(new Date(sessionDate), 'MM/dd/yyyy')}</Link>
         </Table.Cell>
         <Table.Cell>
           {
