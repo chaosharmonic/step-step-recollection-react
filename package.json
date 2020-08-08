@@ -7,11 +7,16 @@
     "lint": "prettier --check \"src/**/*.{js,jsx}\""
   },
   "dependencies": {
+    "bulmaswatch": "^0.8.1",  
+    "lodash": "^4.17.19",
+    "rbx": "^2.2.0",
     "react": "^16.13.0",
-    "react-dom": "^16.13.0"
+    "react-dom": "^16.13.0",
+    "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
     "@snowpack/app-scripts-react": "^1.4.0",
+    "@snowpack/plugin-dotenv": "^1.6.0-alpha.0",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.3",
     "jest": "^25.4.0",

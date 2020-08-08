@@ -1,26 +1,45 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
 
-function App() {
+import { BrowserRouter, Route, Link } from 'react-router-dom'
+import { Section } from 'rbx'
+import 'bulmaswatch/cyborg/bulmaswatch.min.css'
+
+import { Release, ReleaseDetail } from './components/release'
+import { Song, SongDetail } from './components/song'
+import { Session, SessionDetail } from './components/session'
+import { ReleaseProvider } from './contexts/release'
+import { SongProvider } from './contexts/song'
+import { SessionProvider } from './contexts/session'
+
+const Home = () => (
+  <>
+    <h1>Step Step Recollection!</h1>
+  </>
+)
+
+function App () {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <BrowserRouter>
+      <Section>
+        <Link to='/release/'>Release</Link>
+        <Link to='/song/'>Song</Link>
+        <Link to='/session/'>Session</Link>
+        <Route exact path='/' component={Home} />
+        <ReleaseProvider>
+          <Route path='/release/:id' component={ReleaseDetail} />
+          <Route path='/release/' component={Release} />
+        </ReleaseProvider>
+        <SessionProvider>
+          <SongProvider>
+            <Route path='/song/:id' component={SongDetail} />
+            <Route path='/song/' component={Song} />
+          </SongProvider>
+          <Route path='/session/:id' component={SessionDetail} />
+          <Route path='/session/' component={Session} />
+        </SessionProvider>
+      </Section>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
