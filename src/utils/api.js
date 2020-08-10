@@ -3,7 +3,7 @@ const baseURL = `${expressURL}/api`
 
 export const callAPI = async (route, method, body) => {
   // body should include filters
-  // get auth here?
+  // get token from localstorage here
   const options = {
     method,
     headers: {

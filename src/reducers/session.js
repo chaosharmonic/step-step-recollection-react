@@ -37,17 +37,11 @@ const SessionReducer = (state, action) => {
         : { songs: [payload] }
       return { ...state, queue: nextQueue }
 
-    case 'REMOVE_FROM_CURRENT_SESSION':
+    case 'UPDATE_CURRENT_SESSION':
       nextQueue = { ...state.queue }
-      nextQueue.songs = [...state.queue.songs]
-        .filter((e, i) => i !== payload)
+      nextQueue.songs = payload
       return { ...state, queue: nextQueue }
 
-    case 'MOVE_IN_SESSION':
-      nextQueue = { ...state.queue }
-      nextQueue.songs = moveIndex(nextQueue.songs, payload.target, payload.destination)
-
-      return { ...state, queue: nextQueue }
     default:
       console.log('I don\'t recognize this action')
   }

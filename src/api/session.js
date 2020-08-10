@@ -12,7 +12,7 @@ export const getSessionsByPlayerId = async (id) => {
   const results = await callAPI(`session/player/${id}`, 'GET', {})
   return results
 }
-export const addSession = async (body) => { // TODO: shape this arg
+export const addSession = async (body) => {
   const results = await callAPI('session/add', 'POST', body)
   return results
 }

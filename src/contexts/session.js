@@ -63,13 +63,8 @@ export const SessionProvider = ({ children }) => {
     dispatch(action)
   }
 
-  const removeFromCurrentSession = (payload) => {
-    const action = { type: 'REMOVE_FROM_CURRENT_SESSION', payload }
-    dispatch(action)
-  }
-
-  const moveInSession = (payload) => {
-    const action = { type: 'MOVE_IN_SESSION', payload }
+  const updateCurrentSession = (payload) => {
+    const action = { type: 'UPDATE_CURRENT_SESSION', payload }
     dispatch(action)
   }
 
@@ -82,8 +77,7 @@ export const SessionProvider = ({ children }) => {
       updateEntry,
       deleteEntry,
       addToCurrentSession,
-      removeFromCurrentSession,
-      moveInSession
+      updateCurrentSession
     }
   }
 

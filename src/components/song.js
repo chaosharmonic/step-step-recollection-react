@@ -3,7 +3,9 @@ import { Column, Button, Field, Control, Label, Input, Select, Table, Modal } fr
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
+import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
+import { generateFormField } from './scaffold/formField'
 
 const [
   createRecord,
@@ -61,7 +63,7 @@ const constructCharts = (form) => {
 }
 
 export const Song = () => {
-  const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
+  const { entries, setEntries, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
   const [creating, setCreating] = useState(false)
 
@@ -92,9 +94,7 @@ export const Song = () => {
     const setDeletePrompt = () => setDeleteTarget(id)
     const cancelDelete = () => setDeleteTarget(initialTargetId)
 
-    const submitSessionQueueEntry = () => handleAddToSession()
     const setSessionPrompt = () => setSessionTarget(id)
-    const cancelSessionSubmission = () => setSessionTarget(initialTargetId)
 
     const DeleteConfirmation = () => (
       <>
@@ -102,67 +102,6 @@ export const Song = () => {
         <Button size='small' onClick={submitDelete}>Confirm Delete</Button>
       </>
     )
-
-    // TODO: export this
-    const SessionForm = ({ song }) => {
-      const { id, title, charts } = song
-
-      const sessionFormState = {
-        id,
-        title,
-        record: {
-          passed: true
-        },
-        numPads: 1,
-        difficulty: 'expert'
-      }
-      const [formState, setFormState] = useState(sessionFormState)
-
-      const availableCharts = charts.filter(chart => chart.level)
-
-      const availablePads = [...new Set(charts
-        .map(chart => chart.numPads)
-      )]
-
-      const availableDifficulties = availableCharts
-        .filter(chart => Number(chart.numPads) === Number(formState.numPads))
-        .sort((a, b) => a.level - b.level)
-        .map(chart => `${chart.difficulty} - ${chart.level}`)
-
-      const setFormValue = (event) => {
-        const { name, value } = event.target
-        const nextState = { ...formState }
-        nextState[name] = value
-
-        setFormState(nextState)
-      }
-
-      const formField = (field, options = []) => generateFormField(field, formState, setFormValue, options)
-
-      return (
-        <>
-          {formField('numPads', availablePads)}
-          {formField('difficulty', availableDifficulties)}
-          {formField('record.passed', [true, false])}
-          <Button size='small' onClick={cancelSessionSubmission}>Cancel</Button>
-          <Button size='small' onClick={submitSessionQueueEntry}>Add to session</Button>
-        </>
-      )
-    }
-
-    const handleAddToSession = () => {
-      const formData = {
-        song: id,
-        title,
-        record: {
-          passed: true
-        },
-        numPads: 1,
-        difficulty: 'expert'
-      }
-      addToCurrentSession(formData)
-      setSessionTarget(initialTargetId)
-    }
 
     return (
       <Table.Row key={id}>
@@ -175,7 +114,12 @@ export const Song = () => {
               <Button size='small' onClick={setSessionPrompt}>Add to session</Button>
               <Button size='small' onClick={setDeletePrompt}>Delete</Button>
             </>}
-          {sessionTarget === id && <SessionForm song={entry} />}
+          {sessionTarget === id &&
+            <SessionQueueForm
+              song={entry}
+              setOuterTarget={setSessionTarget}
+              handleSubmit={addToCurrentSession}
+            />}
           {deleteTarget === id &&
             <DeleteConfirmation />}
         </Table.Cell>
@@ -195,51 +139,6 @@ export const Song = () => {
         </Table.Body>
       </Table>
     </>
-  )
-}
-
-const generateFormField = (field, state, handleSetFormValue, options = []) => {
-  const value = state[field]
-
-  const TextInput = () => (
-    <Input
-      type='text'
-      placeholder={field}
-      name={field}
-      value={value}
-      onChange={handleSetFormValue}
-    />
-  )
-  const SelectInput = () => {
-    const selectOptions = options.length > 0 &&
-    options.map(option => (
-      <Select.Option
-        key={option}
-        value={option}
-      >
-        {String(option)}
-      </Select.Option>
-    ))
-    return (
-      <Select
-        onChange={handleSetFormValue}
-        value={value}
-        name={field}
-      >
-        {selectOptions}
-      </Select>
-    )
-  }
-
-  return (
-    <Field>
-      <Label>{field}</Label>
-      <Control>
-        {options.length > 0
-          ? SelectInput()
-          : TextInput()}
-      </Control>
-    </Field>
   )
 }
 
@@ -284,7 +183,7 @@ const SongForm = ({ targetId, setSubmitting }) => {
     setFormState(formData)
   }, [detail])
 
-  const formField = (field, options = []) => generateFormField(field, formState, setFormValue, options)
+  const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
 
   const handleUpdateRecord = async (id) => {
     const charts = constructCharts(formState)
@@ -303,7 +202,7 @@ const SongForm = ({ targetId, setSubmitting }) => {
 
     const response = await updateRecord(id, body)
     if (response._id) {
-      const newDetail = { ...detail, song: response }
+      const newDetail = { ...detail, ...response }
       setDetail(newDetail)
     } else {
       console.log(response)
@@ -343,25 +242,25 @@ const SongForm = ({ targetId, setSubmitting }) => {
     <>
       <Column.Group>
         <Column>
-          {formField('title')}
-          {formField('artist')}
-          {formField('release')}
-          {formField('length')}
-          {formField('bpmDisplay')}
+          {formField('title', 'Title')}
+          {formField('artist', 'Artist')}
+          {formField('release', 'Release')}
+          {formField('length', 'Length')}
+          {formField('bpmDisplay', 'BPM')}
         </Column>
         <Column>
-          {formField('chart_single_beginner')}
-          {formField('chart_single_easy')}
-          {formField('chart_single_difficult')}
-          {formField('chart_single_expert')}
-          {formField('chart_single_challenge')}
+          {formField('chart_single_beginner', 'Single: Beginner')}
+          {formField('chart_single_easy', 'Single: Easy')}
+          {formField('chart_single_difficult', 'Single: Difficult')}
+          {formField('chart_single_expert', 'Single: Expert')}
+          {formField('chart_single_challenge', 'Single: Challenge')}
         </Column>
         <Column>
-          {formField('chart_double_beginner')}
-          {formField('chart_double_easy')}
-          {formField('chart_double_difficult')}
-          {formField('chart_double_expert')}
-          {formField('chart_double_challenge')}
+          {formField('chart_double_beginner', 'Double: Beginner')}
+          {formField('chart_double_easy', 'Double: Easy')}
+          {formField('chart_double_difficult', 'Double: Difficult')}
+          {formField('chart_double_expert', 'Double: Expert')}
+          {formField('chart_double_challenge', 'Double: Challenge')}
         </Column>
       </Column.Group>
       <Button onClick={targetId ? submitForm : handleCreateRecord}>
@@ -385,8 +284,8 @@ export const SongDetail = () => {
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
 
-  const handleSelectEdit = () => {
-    setUpdating(true)
+  const handleToggleEdit = () => {
+    setUpdating(!updating)
   }
 
   const location = useLocation()
@@ -404,17 +303,16 @@ export const SongDetail = () => {
     getDetail()
   }, [id])
 
-  const Content = () => Object.keys(detail)
-    .filter(key => !['_id', '__v'].includes(key))
-    .filter(key => !['charts', 'stops', 'bpm'].includes(key))
+  const Content = () => ['title', 'artist', 'release', 'length']
     .map(key => <h1 key={key}>{key}: {detail[key]}</h1>)
 
   const handleBack = () => history.goBack()
+  const editText = updating ? 'Cancel Edit' : 'Edit'
 
   return (
     <>
       <h1>{path} detail!</h1>
-      <Button onClick={handleSelectEdit}>Edit</Button>
+      <Button onClick={handleToggleEdit}>{editText}</Button>
       <Button onClick={handleBack}>Go back!!</Button>
       {updating
         ? <SongForm
