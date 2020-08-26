@@ -8,6 +8,9 @@ const SongReducer = (state, action) => {
     case 'SET_ENTRIES':
       return { ...state, entries: payload }
 
+    case 'SET_PAGES':
+      return { ...state, pageCount: payload }
+
     case 'SET_DETAIL':
       return { ...state, detail: payload }
 

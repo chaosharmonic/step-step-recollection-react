@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Column, Button, Field, Control, Label, Input, Select, Table, Modal } from 'rbx'
+import { Column, Title, Button, Table, Pagination } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
+// import { startCase } from 'lodash'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
 import { SessionQueueForm } from './session'
@@ -25,7 +26,7 @@ const context = SongContext
 const initialFormState = {
   title: '',
   artist: '',
-  release: '5f0c0131e4345b08ae33f24e',
+  release: '',
   length: 0,
   bpmDisplay: '',
   chart_single_beginner: 0,
@@ -63,20 +64,33 @@ const constructCharts = (form) => {
 }
 
 export const Song = () => {
-  const { entries, setEntries, deleteEntry } = useContext(context)
+  const { entries, pageCount, setEntries, setPages, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
+  const isAdmin = false // TODO: get from auth
   const [creating, setCreating] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
 
   useEffect(() => {
     async function getRecords () {
-      const releases = await getAllRecords()
-      setEntries(releases)
+      const { docs, pageCount } = await getAllRecords()
+      setEntries(docs)
+      setPages(pageCount)
     }
     getRecords()
   }, [])
+
+  const getPage = async (page) => {
+    const response = await getAllSongs(page)
+    setCurrentPage(page)
+    // response.docs
+    // ?
+    setEntries(response.docs)
+    // :
+    console.log(response)
+  }
 
   const handleDeleteRecord = async (id) => {
     const response = await deleteRecord(id)
@@ -84,6 +98,68 @@ export const Song = () => {
       ? deleteEntry(response)
       : console.log(response)
   }
+
+  const SongPagination = () => {
+    if (entries.length === 0) return null
+    const pageNumbers = [
+      1,
+      currentPage - 2,
+      currentPage - 1,
+      currentPage,
+      currentPage + 1,
+      currentPage + 2,
+      pageCount
+    ].sort((a, b) => a - b)
+      .filter((num, index, arr) => num > 0 &&
+        num !== arr[index - 1] &&
+        num <= pageCount)
+      .map((num, index, arr) => {
+        const handleGetPage = () => getPage(num)
+        return (
+          <>
+            {(!(arr[index - 1] === num - 1) &&
+            num !== pageCount &&
+            num !== 1) && <Pagination.Ellipsis />}
+            <Pagination.Link
+              current={num === currentPage}
+              onClick={handleGetPage}
+            >
+              {num}
+            </Pagination.Link>
+            {(!(arr[index + 1] === num + 1) &&
+              num !== pageCount &&
+              num !== 1) && <Pagination.Ellipsis />}
+          </>
+        )
+      })
+
+    const getLastOne = () => getPage(currentPage - 1)
+    const getNextOne = () => getPage(currentPage + 1)
+    return (
+      <Pagination>
+        {currentPage !== 1 &&
+          <Pagination.Step
+            align='previous'
+            onClick={getLastOne}
+          >
+            Previous
+          </Pagination.Step>}
+        {currentPage !== pageCount &&
+          <Pagination.Step
+            align='next'
+            onClick={getNextOne}
+          >
+          Next
+          </Pagination.Step>}
+        <Pagination.List>
+          {pageNumbers}
+        </Pagination.List>
+      </Pagination>
+    )
+  }
+  //   edge cases
+  //     larger page skip interval for long entries
+  //     manual page selection
 
   const handleSetCreating = () => setCreating(true)
 
@@ -129,10 +205,11 @@ export const Song = () => {
 
   return (
     <>
-      <h1>{path} route!</h1>
+      <Title>{path}s</Title>
       {creating
         ? <SongForm setSubmitting={setCreating} />
-        : <Button onClick={handleSetCreating}>Add new</Button>}
+        : isAdmin && (<Button onClick={handleSetCreating}>Add new</Button>)}
+      <SongPagination />
       <Table>
         <Table.Body>
           {entriesList}

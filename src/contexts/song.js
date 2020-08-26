@@ -12,7 +12,8 @@ const initialState = {
   //   filters: {} // inherit from player defaults
   // },
   entries: [],
-  detail: {}
+  detail: {},
+  pageCount: 1
 }
 
 export const SongContext = createContext(initialState)
@@ -22,6 +23,11 @@ export const SongProvider = ({ children }) => {
 
   const setEntries = (payload) => {
     const action = { type: 'SET_ENTRIES', payload }
+    dispatch(action)
+  }
+
+  const setPages = (payload) => {
+    const action = { type: 'SET_PAGES', payload }
     dispatch(action)
   }
 
@@ -49,6 +55,7 @@ export const SongProvider = ({ children }) => {
     value: {
       ...state,
       setEntries,
+      setPages,
       setDetail,
       addEntry,
       updateEntry,

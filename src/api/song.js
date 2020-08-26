@@ -1,7 +1,7 @@
 import { callAPI } from '../utils/api'
 
-export const getAllSongs = async () => {
-  const results = await callAPI('song/', 'GET', {})
+export const getAllSongs = async (pageNo = 1) => {
+  const results = await callAPI(`song?pageNo=${pageNo}`, 'GET', {})
   return results
 }
 export const getSongById = async (id) => {
