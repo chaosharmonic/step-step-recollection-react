@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Button, Field, Control, Label, Input, Select, Table } from 'rbx'
+import { Title, Button, Field, Control, Label, Input, Select, Table } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
 import { ReleaseContext } from '../contexts/release'
+import { SessionQueueForm } from './session'
+import { SessionContext } from '../contexts/session'
 
 const [
   createRecord,
@@ -83,7 +85,7 @@ export const Release = () => {
 
   return (
     <>
-      <h1>{path} route!</h1>
+      <Title>{path}s</Title>
       <Table>
         <Table.Body>
           {entriesList}
@@ -222,8 +224,10 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 
 export const ReleaseDetail = () => {
   const { detail, setDetail, deleteEntry } = useContext(context)
+  const { addToCurrentSession } = useContext(SessionContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
+  const [sessionTarget, setSessionTarget] = useState(initialTargetId)
 
   const handleSelectEdit = () => setUpdating(true)
 
@@ -242,9 +246,30 @@ export const ReleaseDetail = () => {
     getDetail()
   }, [id])
 
-  const songsMap = detail.songs.map(song => (
-    <li key={song._id}>{song.title}</li>
-  ))
+  const songsMap = detail.songs.map(song => {
+    const id = song._id
+    const { title } = song
+
+    const setSessionPrompt = () => setSessionTarget(id)
+
+    return (
+      <Table.Row key={id}>
+        <Table.Cell>
+          <Link to={`/song/${id}`}>{title}</Link>
+        </Table.Cell>
+
+        <Table.Cell>
+          {sessionTarget === id
+            ? <SessionQueueForm
+              song={song}
+              setOuterTarget={setSessionTarget}
+              handleSubmit={addToCurrentSession}
+            />
+            : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+        </Table.Cell>
+      </Table.Row>
+    )
+  })
 
   const content = Object.keys(detail.release)
     .filter(key => !['_id', '__v'].includes(key))
@@ -255,7 +280,11 @@ export const ReleaseDetail = () => {
   return (
     <>
       <h1>{path} detail!</h1>
-      {songsMap}
+      <Table>
+        <Table.Body>
+          {songsMap}
+        </Table.Body>
+      </Table>
       <Button onClick={handleSelectEdit}>Edit</Button>
       <Button onClick={handleBack}>Go back!!</Button>
       {updating
