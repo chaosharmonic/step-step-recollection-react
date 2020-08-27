@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Title, Button, Field, Control, Label, Input, Select, Table } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
+import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
 import { ReleaseContext } from '../contexts/release'
 import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
+import { generateFormField } from './scaffold/formField'
 
 const [
   createRecord,
@@ -25,14 +27,14 @@ const initialFormState = {
   title: '',
   scale: 'DDR', // DDR (classic), DDR X, ITG
   numPanels: 4, // chart type -- DDR, Pump, StepmaniaX, etc.
-  releaseYear: 1998,
+  releaseDate: '09/26/1998',
   releaseType: 'official' // first or third party
 }
 const initialTargetId = ''
 const path = 'release'
 
 export const Release = () => {
-  const { isAdmin } = useContext(AuthContext)
+  const isAdmin = true // useContext(AuthContext)
   const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
   const [creating, setCreating] = useState(false)
 
@@ -58,14 +60,14 @@ export const Release = () => {
   const entriesList = entries && entries.map(entry => {
     const { title, _id } = entry
     const id = _id
-    const submitDelete = () => handleDeleteRecord(id)
+    const confirmDelete = () => handleDeleteRecord(id)
     const setDeleteConfirmation = () => setDeleteTarget(id)
     const cancelDelete = () => setDeleteTarget(initialTargetId)
 
     const DeleteConfirmation = () => (
       <>
         <Button size='small' onClick={cancelDelete}>Cancel Delete</Button>
-        <Button size='small' onClick={submitDelete}>Confirm Delete</Button>
+        <Button size='small' onClick={confirmDelete}>Confirm Delete</Button>
       </>
     )
 
@@ -106,9 +108,9 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
   const [formState, setFormState] = useState(initialFormState)
 
   useEffect(() => {
-    const { title, scale, releaseYear, numPanels, releaseType } = release
+    const { title, scale, releaseDate, numPanels, releaseType } = release
     const formData = targetId
-      ? { title, numPanels, releaseYear, releaseType, scale }
+      ? { title, numPanels, releaseDate: format(releaseDate, 'MM/dd/yyyy'), releaseType, scale }
       : initialFormState
 
     setFormState(formData)
@@ -148,6 +150,13 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
     : `Add new ${path}!`
 
   const submitForm = () => {
+    const date = parse(formState.releaseDate, 'MM/dd/yyyy', new Date())
+
+    if (!isValid(date)) {
+      console.log('Invalid date!')
+      return null
+    }
+
     targetId && handleUpdateRecord(targetId)
     setFormState(initialFormState)
     revertForm()
@@ -165,58 +174,15 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
     setFormState(initialFormState)
   }
 
-  const generateFormField = (field, options = []) => {
-    const value = formState[field]
-
-    const TextInput = () => (
-      <Input
-        type='text'
-        placeholder={field}
-        name={field}
-        value={value}
-        onChange={setFormValue}
-      />
-    )
-    const SelectInput = () => {
-      const selectOptions = options.length > 0 &&
-      options.map(option => (
-        <Select.Option
-          key={option}
-          value={option}
-        >
-          {option}
-        </Select.Option>
-      ))
-      return (
-        <Select
-          onChange={setFormValue}
-          value={value}
-          name={field}
-        >
-          {selectOptions}
-        </Select>
-      )
-    }
-
-    return (
-      <Field>
-        <Label>{field}</Label>
-        <Control>
-          {options.length > 0
-            ? SelectInput()
-            : TextInput()}
-        </Control>
-      </Field>
-    )
-  }
+  const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
 
   return (
     <>
-      {generateFormField('title')}
-      {generateFormField('scale', ['DDR', 'DDR X', 'ITG'])}
-      {generateFormField('numPanels')}
-      {generateFormField('releaseYear')}
-      {generateFormField('releaseType', ['official', 'custom'])}
+      {formField('title', 'Title')}
+      {formField('scale', 'Scale', ['DDR', 'DDR X', 'ITG'])}
+      {formField('numPanels', 'Number of panels')}
+      {formField('releaseDate', 'Release date (MM/dd/yyyy)')}
+      {formField('releaseType', 'Release type', ['Arcade', 'Console', 'Custom'])}
       <Button onClick={targetId ? submitForm : handleCreateRecord}>
         {submitButtonText}
       </Button>
@@ -228,7 +194,7 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 export const ReleaseDetail = () => {
   const { detail, setDetail, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
-  const { isAdmin } = useContext(AuthContext)
+  const isAdmin = true // useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
@@ -268,7 +234,7 @@ export const ReleaseDetail = () => {
               song={song}
               setOuterTarget={setSessionTarget}
               handleSubmit={addToCurrentSession}
-            />
+              />
             : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
         </Table.Cell>
       </Table.Row>
@@ -297,7 +263,7 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-        />
+          />
         : content}
     </>
   )

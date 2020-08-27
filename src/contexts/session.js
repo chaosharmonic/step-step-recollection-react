@@ -13,7 +13,8 @@ const initialState = {
       id: '',
       username: ''
     },
-    songs: []
+    songs: [],
+    sessionDate: ''
   },
   queue: {
     songs: []

@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { Button, Title, Table } from 'rbx'
-import { format } from 'date-fns'
+import { parse, format, isValid } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
 import { moveIndex } from '../utils/moveIndex'
 import { generateFormField } from './scaffold/formField'
-const localPlayer = import.meta.env.ADMIN_PLAYER
 
 const context = SessionContext
 const [
@@ -28,19 +27,21 @@ const path = 'session'
 
 export const SessionQueue = ({ targetId, updateOuterState }) => {
   const { detail, queue, setDetail, updateCurrentSession, addEntry, updateEntry } = useContext(context)
-  const { user: { id } } = useContext(authContext) || localPlayer
-  const { songs } = targetId
+  const { user: { id } } = useContext(AuthContext)
+  const { songs, sessionDate = new Date() } = targetId
     ? detail
     : queue
 
   const [editTarget, setEditTarget] = useState(null)
   const clearEditTarget = () => setEditTarget(null)
 
+  const date = format(new Date(sessionDate), 'MM/dd/yyyy')
+  const [formState, setFormState] = useState({ sessionDate: date })
+
   const [entries, setEntries] = useState(songs)
   useEffect(() => setEntries(songs), [songs])
 
   const handleCreateRecord = async () => {
-    const sessionDate = new Date()
     const body = {
       payload: { player: id, songs: [...entries], sessionDate }
     }
@@ -51,8 +52,15 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
   }
 
   const handleUpdateRecord = async (id) => {
+    const date = parse(formState.sessionDate, 'MM/dd/yyyy', new Date())
+
+    if (!isValid(date)) {
+      console.log('Invalid date!')
+      return null
+    }
+
     const body = {
-      payload: { songs: [...entries] }
+      payload: { songs: [...entries], sessionDate: date }
     }
     const response = await updateRecord(id, body)
     if (response._id) {
@@ -89,6 +97,16 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
     ? handleUpdateRecord(targetId)
     : handleCreateRecord()
 
+  const setFormValue = (event) => {
+    const { name, value } = event.target
+    const nextState = { ...formState }
+    nextState[name] = value
+
+    setFormState(nextState)
+  }
+
+  const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
+
   const entriesList = entries
     .map((song, i) => {
       const { id, title, difficulty } = song
@@ -118,7 +136,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
               song={song}
               setOuterTarget={clearEditTarget}
               handleSubmit={handleEdit}
-              />}
+            />}
 
         </li>
       )
@@ -126,6 +144,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
   return (
     <>
       {entriesList}
+      {formField('sessionDate', 'Session Date')}
       <Button onClick={handleSubmitSession}>Save session!</Button>
     </>
   )
@@ -227,10 +246,12 @@ export const Session = () => {
       </>
     )
 
+    const date = format(new Date(sessionDate), 'MM/dd/yyyy')
+
     return (
       <Table.Row key={id}>
         <Table.Cell>
-          <Link to={`/session/${id}`}>{format(new Date(sessionDate), 'MM/dd/yyyy')}</Link>
+          <Link to={`/session/${id}`}>{date}</Link>
         </Table.Cell>
         <Table.Cell>
           {
@@ -261,7 +282,7 @@ export const Session = () => {
 
 export const SessionDetail = () => {
   const { detail, setDetail, updateEntry } = useContext(context)
-  const { songs, player: {username}, sessionDate } = detail
+  const { songs, player: { username }, sessionDate } = detail
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
 
@@ -289,10 +310,12 @@ export const SessionDetail = () => {
   })
 
   const passed = songs.filter(song => song.record.passed)
+  const date = sessionDate && format(new Date(sessionDate), 'MM/dd/yyyy')
 
   const content = (
     <>
       <h1>Player: {username}</h1>
+      <h1>Date: {date}</h1>
       <h1>Total songs: {songs.length} </h1>
       <h1>Total passed: {passed.length} </h1>
       {entriesList}

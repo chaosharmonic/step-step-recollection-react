@@ -14,7 +14,7 @@ const initialState = {
   entries: [], // get from API on opening route
   detail: {
     release: {},
-    songs: [] // TODO: fill with basic info, using display
+    songs: []
     // ,courses: []
   }
 }
