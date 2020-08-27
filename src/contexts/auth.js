@@ -1,8 +1,14 @@
 import React, { createContext, useReducer } from 'react'
 import AuthReducer from '../reducers/auth'
 
-const id = import.meta.env.ADMIN_PLAYER || null
-const username = import.meta.env.ADMIN_USERNAME || null
+const isDevelop = import.meta.env.SNOWPACK_PUBLIC_ENVIRONMENT === 'development'
+
+const username = isDevelop
+  ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER 
+  : null
+const id = isDevelop
+  ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_ID 
+  : null
 
 const initialState = {
   user: {
