@@ -4,8 +4,10 @@ import { Button, Title, Table } from 'rbx'
 import { format } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
+import { AuthContext } from '../contexts/auth'
 import { moveIndex } from '../utils/moveIndex'
 import { generateFormField } from './scaffold/formField'
+const localPlayer = import.meta.env.ADMIN_PLAYER
 
 const context = SessionContext
 const [
@@ -26,6 +28,7 @@ const path = 'session'
 
 export const SessionQueue = ({ targetId, updateOuterState }) => {
   const { detail, queue, setDetail, updateCurrentSession, addEntry, updateEntry } = useContext(context)
+  const { user: { id } } = useContext(authContext) || localPlayer
   const { songs } = targetId
     ? detail
     : queue
@@ -39,7 +42,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
   const handleCreateRecord = async () => {
     const sessionDate = new Date()
     const body = {
-      payload: { songs: [...entries], sessionDate }
+      payload: { player: id, songs: [...entries], sessionDate }
     }
     const response = await createRecord(body)
     response._id
@@ -128,6 +131,66 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
   )
 }
 
+export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
+  const { title, charts, difficulty = 'expert' } = song
+  const cancelSubmit = () => setOuterTarget(initialTargetId)
+
+  const id = song.song || song._id
+  const sessionQueueFormState = {
+    song: id,
+    title,
+    record: {
+      passed: true
+    },
+    numPads: 1,
+    difficulty
+  }
+  const [formState, setFormState] = useState(sessionQueueFormState)
+
+  const handleSelectSubmit = () => {
+    handleSubmit({ ...formState, song: id, charts })
+    setOuterTarget(initialTargetId)
+  }
+
+  const availableCharts = charts.filter(chart => chart.level)
+
+  const availablePads = [...new Set(charts
+    .map(chart => chart.numPads)
+  )]
+
+  const availableDifficulties = availableCharts
+    .filter(chart => Number(chart.numPads) === Number(formState.numPads))
+    .sort((a, b) => a.level - b.level)
+    .map(({ difficulty, level }) => ({ key: difficulty, text: `${difficulty} - ${level}` }))
+
+  const setFormValue = (event) => {
+    const { name, value } = event.target
+    const nextState = { ...formState }
+    nextState[name] = value
+
+    setFormState(nextState)
+  }
+
+  const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
+  const boolPair = [true, false]
+    .map(e => ({
+      key: e,
+      text: e ? 'Yes' : 'No'
+    }))
+
+  const submitText = 'Save chart'
+
+  return (
+    <>
+      {formField('numPads', 'Style', availablePads)}
+      {formField('difficulty', 'Difficulty', availableDifficulties)}
+      {formField('record.passed', 'Passed?', boolPair)}
+      <Button size='small' onClick={cancelSubmit}>Cancel</Button>
+      <Button size='small' onClick={handleSelectSubmit}>{submitText}</Button>
+    </>
+  )
+}
+
 export const Session = () => {
   const { entries, queue, setEntries, deleteEntry } = useContext(context)
 
@@ -198,7 +261,7 @@ export const Session = () => {
 
 export const SessionDetail = () => {
   const { detail, setDetail, updateEntry } = useContext(context)
-  const { songs, player, sessionDate } = detail
+  const { songs, player: {username}, sessionDate } = detail
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
 
@@ -225,14 +288,13 @@ export const SessionDetail = () => {
     )
   })
 
-  const username = player
-    ? player.username
-    : 'Casval'
+  const passed = songs.filter(song => song.record.passed)
 
   const content = (
     <>
       <h1>Player: {username}</h1>
       <h1>Total songs: {songs.length} </h1>
+      <h1>Total passed: {passed.length} </h1>
       {entriesList}
     </>
   )
@@ -249,66 +311,6 @@ export const SessionDetail = () => {
         : content}
       <Button onClick={handleToggleEdit}>{editText}</Button>
       <Button onClick={handleBack}>Go back!!</Button>
-    </>
-  )
-}
-
-export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
-  const { title, charts, difficulty = 'expert' } = song
-  const cancelSubmit = () => setOuterTarget(initialTargetId)
-
-  const id = song.song || song._id
-  const sessionQueueFormState = {
-    song: id,
-    title,
-    record: {
-      passed: true
-    },
-    numPads: 1,
-    difficulty
-  }
-  const [formState, setFormState] = useState(sessionQueueFormState)
-
-  const handleSelectSubmit = () => {
-    handleSubmit({ ...formState, song: id, charts })
-    setOuterTarget(initialTargetId)
-  }
-
-  const availableCharts = charts.filter(chart => chart.level)
-
-  const availablePads = [...new Set(charts
-    .map(chart => chart.numPads)
-  )]
-
-  const availableDifficulties = availableCharts
-    .filter(chart => Number(chart.numPads) === Number(formState.numPads))
-    .sort((a, b) => a.level - b.level)
-    .map(({ difficulty, level }) => ({ key: difficulty, text: `${difficulty} - ${level}` }))
-
-  const setFormValue = (event) => {
-    const { name, value } = event.target
-    const nextState = { ...formState }
-    nextState[name] = value
-
-    setFormState(nextState)
-  }
-
-  const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
-  const boolPair = [true, false]
-    .map(e => ({
-      key: e,
-      text: e ? 'Yes' : 'No'
-    }))
-
-  const submitText = 'Save chart'
-
-  return (
-    <>
-      {formField('numPads', 'Style', availablePads)}
-      {formField('difficulty', 'Difficulty', availableDifficulties)}
-      {formField('record.passed', 'Passed?', boolPair)}
-      <Button size='small' onClick={cancelSubmit}>Cancel</Button>
-      <Button size='small' onClick={handleSelectSubmit}>{submitText}</Button>
     </>
   )
 }

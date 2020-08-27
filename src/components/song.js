@@ -6,6 +6,7 @@ import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../ap
 import { SongContext } from '../contexts/song'
 import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
+import { AuthContext } from '../contexts/auth'
 import { generateFormField } from './scaffold/formField'
 
 const [
@@ -65,8 +66,8 @@ const constructCharts = (form) => {
 
 export const Song = () => {
   const { entries, pageCount, setEntries, setPages, deleteEntry } = useContext(context)
+  const { user: { isAdmin } } = useContext(AuthContext)
   const { addToCurrentSession } = useContext(SessionContext)
-  const isAdmin = false // TODO: get from auth
   const [creating, setCreating] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -188,7 +189,8 @@ export const Song = () => {
           {sessionTarget !== id && deleteTarget !== id &&
             <>
               <Button size='small' onClick={setSessionPrompt}>Add to session</Button>
-              <Button size='small' onClick={setDeletePrompt}>Delete</Button>
+              {isAdmin &&
+                <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
             </>}
           {sessionTarget === id &&
             <SessionQueueForm
@@ -208,7 +210,8 @@ export const Song = () => {
       <Title>{path}s</Title>
       {creating
         ? <SongForm setSubmitting={setCreating} />
-        : isAdmin && (<Button onClick={handleSetCreating}>Add new</Button>)}
+        : isAdmin &&
+          <Button onClick={handleSetCreating}>Add new</Button>}
       <SongPagination />
       <Table>
         <Table.Body>
@@ -350,6 +353,7 @@ const SongForm = ({ targetId, setSubmitting }) => {
 
 export const SongDetail = () => {
   const { detail, setDetail, deleteEntry } = useContext(context)
+  const { user: { isAdmin } } = useContext(AuthContext)
   const {
     title,
     artist,
@@ -389,7 +393,8 @@ export const SongDetail = () => {
   return (
     <>
       <h1>{path} detail!</h1>
-      <Button onClick={handleToggleEdit}>{editText}</Button>
+      {isAdmin &&
+        <Button onClick={handleToggleEdit}>{editText}</Button>}
       <Button onClick={handleBack}>Go back!!</Button>
       {updating
         ? <SongForm

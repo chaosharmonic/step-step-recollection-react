@@ -1,6 +1,3 @@
-// import ViewReducer from './crud'
-// const SongReducer = ViewReducer
-
 const SongReducer = (state, action) => {
   const { payload } = action
   let newEntries

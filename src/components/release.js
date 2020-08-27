@@ -5,6 +5,7 @@ import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteReleas
 import { ReleaseContext } from '../contexts/release'
 import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
+import { AuthContext } from '../contexts/auth'
 
 const [
   createRecord,
@@ -31,6 +32,7 @@ const initialTargetId = ''
 const path = 'release'
 
 export const Release = () => {
+  const { isAdmin } = useContext(AuthContext)
   const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
   const [creating, setCreating] = useState(false)
 
@@ -76,7 +78,8 @@ export const Release = () => {
           {
             deleteTarget === id
               ? <DeleteConfirmation />
-              : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>
+              : isAdmin &&
+                <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>
           }
         </Table.Cell>
       </Table.Row>
@@ -91,7 +94,7 @@ export const Release = () => {
           {entriesList}
         </Table.Body>
       </Table>
-      <Button onClick={handleSetCreating}>Add new</Button>
+      {isAdmin && <Button onClick={handleSetCreating}>Add new</Button>}
       {creating && <ReleaseForm setSubmitting={setCreating} />}
     </>
   )
@@ -225,6 +228,7 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 export const ReleaseDetail = () => {
   const { detail, setDetail, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
+  const { isAdmin } = useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
@@ -276,6 +280,7 @@ export const ReleaseDetail = () => {
     .map(key => <h1 key={key}>{key}: {detail.release[key]}</h1>)
 
   const handleBack = () => history.goBack()
+  const editText = updating ? 'Cancel Edit' : 'Edit'
 
   return (
     <>
@@ -285,7 +290,8 @@ export const ReleaseDetail = () => {
           {songsMap}
         </Table.Body>
       </Table>
-      <Button onClick={handleSelectEdit}>Edit</Button>
+      {isAdmin &&
+        <Button onClick={handleSelectEdit}>{editText}</Button>}
       <Button onClick={handleBack}>Go back!!</Button>
       {updating
         ? <ReleaseForm
