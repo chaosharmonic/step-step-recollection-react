@@ -1,11 +1,11 @@
 const AuthReducer = (state, action) => {
   const { payload } = action
   switch (action.type) {
-    case 'USER_LOGIN':
+    case 'SET_USER':
       return { ...state, user: payload }
 
-    case 'USER_LOGOUT':
-      return { ...state, pageCount: payload }
+    case 'CLEAR_USER':
+      return { ...state, user: payload }
     default:
       console.log('I don\'t recognize this action')
   }

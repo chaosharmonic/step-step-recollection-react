@@ -14,7 +14,7 @@ export const generateFormField = (field, label, state, handleSetFormValue, optio
 
   const TextInput = () => (
     <Input
-      type='text'
+      type={field === 'password' ? 'password' : 'text'}
       placeholder={label}
       name={field}
       value={value}

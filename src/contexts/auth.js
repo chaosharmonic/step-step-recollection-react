@@ -1,20 +1,29 @@
 import React, { createContext, useReducer } from 'react'
+import Cookie from 'js-cookie'
+import { jwt_decode } from 'jwt-decode-es'
 import AuthReducer from '../reducers/auth'
 
-const isDevelop = import.meta.env.SNOWPACK_PUBLIC_ENVIRONMENT === 'development'
+const isDevelop = null //import.meta.env.SNOWPACK_PUBLIC_ENVIRONMENT === 'development'
 
-const username = isDevelop
+const adminUser = isDevelop
   ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER 
   : null
-const id = isDevelop
+const adminId = isDevelop
   ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_ID 
   : null
+
+const token = Cookie.get('x-access-token')
+const { 
+  _id: id = adminId,
+  username = adminUser,
+  isAdmin = Boolean(adminId)
+} = token ? jwt_decode(token) : {}
 
 const initialState = {
   user: {
     id,
     username,
-    isAdmin: Boolean(id) // TODO: permissions
+    isAdmin
   }
 }
 
@@ -23,21 +32,21 @@ export const AuthContext = createContext(initialState)
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(AuthReducer, initialState)
 
-  const login = (payload) => {
-    const action = { type: 'USER_LOGIN', payload }
+  const setUser = (payload) => {
+    const action = { type: 'SET_USER', payload }
     dispatch(action)
   }
 
-  const logout = (payload) => {
-    const action = { type: 'USER_LOGOUT', payload }
+  const clearUser = () => {
+    const action = { type: 'CLEAR_USER', initialState }
     dispatch(action)
   }
 
   const props = {
     value: {
       ...state,
-      login,
-      logout
+      setUser,
+      clearUser
     }
   }
 

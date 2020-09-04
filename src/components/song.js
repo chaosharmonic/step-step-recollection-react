@@ -66,7 +66,7 @@ const constructCharts = (form) => {
 
 export const Song = () => {
   const { entries, pageCount, setEntries, setPages, deleteEntry } = useContext(context)
-  const { user: { isAdmin } } = useContext(AuthContext)
+  const { user: { username, isAdmin } } = useContext(AuthContext)
   const { addToCurrentSession } = useContext(SessionContext)
   const [creating, setCreating] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -188,7 +188,8 @@ export const Song = () => {
         <Table.Cell>
           {sessionTarget !== id && deleteTarget !== id &&
             <>
-              <Button size='small' onClick={setSessionPrompt}>Add to session</Button>
+              {username &&
+                <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
               {isAdmin &&
                 <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
             </>}

@@ -34,7 +34,7 @@ const initialTargetId = ''
 const path = 'release'
 
 export const Release = () => {
-  const isAdmin = true // useContext(AuthContext)
+  const { user: { isAdmin } } = useContext(AuthContext)
   const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
   const [creating, setCreating] = useState(false)
 
@@ -194,7 +194,7 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 export const ReleaseDetail = () => {
   const { detail, setDetail, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
-  const isAdmin = true // useContext(AuthContext)
+  const { username, isAdmin } = useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
@@ -234,7 +234,7 @@ export const ReleaseDetail = () => {
               song={song}
               setOuterTarget={setSessionTarget}
               handleSubmit={addToCurrentSession}
-              />
+            />
             : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
         </Table.Cell>
       </Table.Row>
@@ -263,7 +263,7 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-          />
+        />
         : content}
     </>
   )

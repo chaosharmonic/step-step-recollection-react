@@ -1,14 +1,15 @@
+import Cookie from 'js-cookie'
 const expressURL = import.meta.env.SNOWPACK_PUBLIC_EXPRESS_URL
 const baseURL = `${expressURL}/api`
 
 export const callAPI = async (route, method, body) => {
   // body should include filters
-  // get token from localstorage here
+  const token = Cookie.get('x-access-token')
   const options = {
     method,
     headers: {
-      'Content-Type': 'application/json'
-      // x-access-token: token
+      'Content-Type': 'application/json',
+      'x-access-token': token
     },
     body: method !== 'GET'
       ? JSON.stringify(body)

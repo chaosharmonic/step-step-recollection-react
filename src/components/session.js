@@ -212,6 +212,7 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
 
 export const Session = () => {
   const { entries, queue, setEntries, deleteEntry } = useContext(context)
+  const { user: { id: playerId, isAdmin } } = useContext(AuthContext)
 
   const { songs = [] } = queue
 
@@ -233,8 +234,7 @@ export const Session = () => {
   }
 
   const entriesList = entries && entries.map(entry => {
-    const { sessionDate, _id } = entry
-    const id = _id
+    const { sessionDate, _id: id, player } = entry
     const submitDelete = () => handleDeleteRecord(id)
     const setDeleteConfirmation = () => setDeleteTarget(id)
     const cancelDelete = () => setDeleteTarget(initialTargetId)
@@ -248,17 +248,18 @@ export const Session = () => {
 
     const date = format(new Date(sessionDate), 'MM/dd/yyyy')
 
+    const canDelete = playerId === player.id || isAdmin
+
     return (
       <Table.Row key={id}>
         <Table.Cell>
           <Link to={`/session/${id}`}>{date}</Link>
         </Table.Cell>
         <Table.Cell>
-          {
-            deleteTarget === id
+          {canDelete &&
+            (deleteTarget === id
               ? <DeleteConfirmation />
-              : <Button onClick={setDeleteConfirmation}>Delete</Button>
-          }
+              : <Button onClick={setDeleteConfirmation}>Delete</Button>)}
         </Table.Cell>
       </Table.Row>
     )
