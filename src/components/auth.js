@@ -32,8 +32,8 @@ export const LoginForm = () => {
     const { token } = await loginUser(body)
     setFormState(initialFormState)
     if (!token) return null
-    const user = jwt_decode(token)
-    setUser(user)
+    const { _id: id, username, isAdmin } = jwt_decode(token)
+    setUser({ id, username, isAdmin })
     history.push('/')
   }
 
@@ -58,5 +58,5 @@ export const LogoutButton = () => {
     history.push('/')
   }
 
-  return <Button onClick={handleLogout}>Logout</Button>
+  return <a onClick={handleLogout}>Logout</a>
 }
