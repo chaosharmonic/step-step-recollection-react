@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 
 import { BrowserRouter, Route, Link } from 'react-router-dom'
-import { Section } from 'rbx'
+import { Section, Navbar } from 'rbx'
 import 'bulmaswatch/cyborg/bulmaswatch.min.css'
 
 import { LoginForm, LogoutButton } from './components/auth'
@@ -23,14 +23,22 @@ const NavHeader = () => {
   const { user = {} } = useContext(AuthContext)
   const { username = null } = user
   return (
-    <>
-      <Link to='/release/'>Release</Link>
-      <Link to='/song/'>Song</Link>
-      <Link to='/session/'>Session</Link>
-      {username
-        ? <LogoutButton />
-        : <Link to='/login/'>Login</Link>}
-    </>
+    <Navbar fixed='bottom'>
+      <Navbar.Item>
+        <Link to='/release/'>Release</Link>
+      </Navbar.Item>
+      <Navbar.Item>
+        <Link to='/song/'>Song</Link>
+      </Navbar.Item>
+      <Navbar.Item>
+        <Link to='/session/'>Session</Link>
+      </Navbar.Item>
+      <Navbar.Item>
+        {username
+          ? <LogoutButton />
+          : <Link to='/login/'>Login</Link>}
+      </Navbar.Item>
+    </Navbar>
   )
 }
 
