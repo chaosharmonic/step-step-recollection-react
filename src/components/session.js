@@ -121,29 +121,42 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       const handleEdit = (state) => edit(i, state)
 
       return (
-        <li key={id}>
-          {title}
+        <Table.Row key={id}>
+          <Table.Cell>
+            {title}
+          </Table.Cell>
           {editTarget !== i
             ? (
-              <> - {difficulty}
-                {!isBeginning && <Button onClick={handleMoveUp}>Up</Button>}
-                {!isEnd && <Button onClick={handleMoveDown}>Down</Button>}
-                <Button onClick={handleRemoveFromSession}>Remove from session</Button>
-                <Button onClick={handleSelectEdit}>Edit Chart</Button>
+              <>
+                <Table.Cell>
+                  {difficulty}
+                </Table.Cell>
+                <Table.Cell>
+                  <Button onClick={handleRemoveFromSession}>Remove from session</Button>
+                </Table.Cell>
+                <Table.Cell>
+                  <Button onClick={handleSelectEdit}>Edit Chart</Button>
+                </Table.Cell>
+                <Table.Cell>
+                  {!isBeginning && <Button onClick={handleMoveUp}>Up</Button>}
+                  {!isEnd && <Button onClick={handleMoveDown}>Down</Button>}
+                </Table.Cell>
               </>
             )
             : <SessionQueueForm
               song={song}
               setOuterTarget={clearEditTarget}
               handleSubmit={handleEdit}
-            />}
+              />}
 
-        </li>
+        </Table.Row>
       )
     })
   return (
     <>
-      {entriesList}
+      <Table>
+        {entriesList}
+      </Table>
       {formField('sessionDate', 'Session Date')}
       <Button onClick={handleSubmitSession}>Save session!</Button>
     </>
@@ -235,6 +248,7 @@ export const Session = () => {
 
   const entriesList = entries && entries.map(entry => {
     const { sessionDate, _id: id, player } = entry
+    const { username } = player
     const submitDelete = () => handleDeleteRecord(id)
     const setDeleteConfirmation = () => setDeleteTarget(id)
     const cancelDelete = () => setDeleteTarget(initialTargetId)
@@ -254,6 +268,9 @@ export const Session = () => {
       <Table.Row key={id}>
         <Table.Cell>
           <Link to={`/session/${id}`}>{date}</Link>
+        </Table.Cell>
+        <Table.Cell>
+          {username}
         </Table.Cell>
         <Table.Cell>
           {canDelete &&
@@ -304,9 +321,19 @@ export const SessionDetail = () => {
     getDetail()
   }, [id])
 
-  const entriesList = songs.map(({ id, title, difficulty }) => {
+  const entriesList = songs.map(({ id, title, difficulty, record: { passed } }) => {
     return (
-      <li key={id}>{title} - {difficulty}</li>
+      <Table.Row key={id}>
+        <Table.Cell>
+          {title}
+        </Table.Cell>
+        <Table.Cell>
+          {difficulty}
+        </Table.Cell>
+        <Table.Cell>
+          {passed ? 'Pass' : 'Fail'}
+        </Table.Cell>
+      </Table.Row>
     )
   })
 
@@ -319,7 +346,9 @@ export const SessionDetail = () => {
       <h1>Date: {date}</h1>
       <h1>Total songs: {songs.length} </h1>
       <h1>Total passed: {passed.length} </h1>
-      {entriesList}
+      <Table>
+        {entriesList}
+      </Table>
     </>
   )
 
