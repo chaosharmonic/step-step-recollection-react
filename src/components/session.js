@@ -147,7 +147,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
               song={song}
               setOuterTarget={clearEditTarget}
               handleSubmit={handleEdit}
-              />}
+            />}
 
         </Table.Row>
       )
@@ -229,6 +229,9 @@ export const Session = () => {
 
   const { songs = [] } = queue
 
+  const location = useLocation()
+  const isHidden = !location.pathname.replace(/\//g, '').endsWith(path)
+
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
 
   useEffect(() => {
@@ -283,7 +286,7 @@ export const Session = () => {
   })
 
   return (
-    <>
+    <div className={isHidden && 'isHidden'}>
       <Title>{path} route!</Title>
       <h1>Current session:</h1>
       {songs.length
@@ -294,7 +297,7 @@ export const Session = () => {
           {entriesList}
         </Table.Body>
       </Table>
-    </>
+    </div>
   )
 }
 

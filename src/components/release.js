@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Button, Field, Control, Label, Input, Select, Table } from 'rbx'
+import { Title, Button, Table } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -37,8 +37,10 @@ export const Release = () => {
   const { user: { isAdmin } } = useContext(AuthContext)
   const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
   const [creating, setCreating] = useState(false)
-
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
+
+  const location = useLocation()
+  const isHidden = !location.pathname.replace(/\//g, '').endsWith(path)
 
   useEffect(() => {
     async function getRecords () {
@@ -89,7 +91,7 @@ export const Release = () => {
   })
 
   return (
-    <>
+    <div className={isHidden && 'isHidden'}>
       <Title>{path}s</Title>
       <Table>
         <Table.Body>
@@ -98,7 +100,7 @@ export const Release = () => {
       </Table>
       {isAdmin && <Button onClick={handleSetCreating}>Add new</Button>}
       {creating && <ReleaseForm setSubmitting={setCreating} />}
-    </>
+    </div>
   )
 }
 
@@ -234,7 +236,7 @@ export const ReleaseDetail = () => {
               song={song}
               setOuterTarget={setSessionTarget}
               handleSubmit={addToCurrentSession}
-            />
+              />
             : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
         </Table.Cell>
       </Table.Row>
@@ -250,12 +252,6 @@ export const ReleaseDetail = () => {
 
   return (
     <>
-      <h1>{path} detail!</h1>
-      <Table>
-        <Table.Body>
-          {songsMap}
-        </Table.Body>
-      </Table>
       {isAdmin &&
         <Button onClick={handleSelectEdit}>{editText}</Button>}
       <Button onClick={handleBack}>Go back!!</Button>
@@ -263,8 +259,14 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-        />
+          />
         : content}
+      <h1>Songs:</h1>
+      <Table>
+        <Table.Body>
+          {songsMap}
+        </Table.Body>
+      </Table>
     </>
   )
 }

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Column, Title, Button, Table, Pagination } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
-// import { startCase } from 'lodash'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
 import { SessionQueueForm } from './session'
@@ -73,6 +72,9 @@ export const Song = () => {
 
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
+
+  const location = useLocation()
+  const isHidden = !location.pathname.replace(/\//g, '').endsWith(path)
 
   useEffect(() => {
     async function getRecords () {
@@ -207,7 +209,7 @@ export const Song = () => {
   })
 
   return (
-    <>
+    <div className={isHidden && 'isHidden'}>
       <Title>{path}s</Title>
       {creating
         ? <SongForm setSubmitting={setCreating} />
@@ -219,7 +221,7 @@ export const Song = () => {
           {entriesList}
         </Table.Body>
       </Table>
-    </>
+    </div>
   )
 }
 
