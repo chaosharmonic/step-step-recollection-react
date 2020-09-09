@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 
 import { BrowserRouter, Route, Link } from 'react-router-dom'
-import { Section, Navbar } from 'rbx'
+import { Section, Container, Navbar, Title } from 'rbx'
 import 'bulmaswatch/cyborg/bulmaswatch.min.css'
 
 import { LoginForm, LogoutButton } from './components/auth'
@@ -15,7 +15,7 @@ import { SessionProvider } from './contexts/session'
 
 const Home = () => (
   <>
-    <h1>Step Step Recollection!</h1>
+    <Title>Step Step Recollection!</Title>
   </>
 )
 
@@ -24,20 +24,22 @@ const NavHeader = () => {
   const { username = null } = user
   return (
     <Navbar fixed='bottom'>
-      <Navbar.Item as='div'>
-        <Link to='/release/'>Release</Link>
-      </Navbar.Item>
-      <Navbar.Item as='div'>
-        <Link to='/song/'>Song</Link>
-      </Navbar.Item>
-      <Navbar.Item as='div'>
-        <Link to='/session/'>Session</Link>
-      </Navbar.Item>
-      <Navbar.Item as='div'>
-        {username
-          ? <LogoutButton />
-          : <Link to='/login/'>Login</Link>}
-      </Navbar.Item>
+      <Navbar.Brand>
+        <Navbar.Item as='div'>
+          <Link to='/release/'>Release</Link>
+        </Navbar.Item>
+        <Navbar.Item as='div'>
+          <Link to='/song/'>Song</Link>
+        </Navbar.Item>
+        <Navbar.Item as='div'>
+          <Link to='/session/'>Session</Link>
+        </Navbar.Item>
+        <Navbar.Item as='div'>
+          {username
+            ? <LogoutButton />
+            : <Link to='/login/'>Login</Link>}
+        </Navbar.Item>
+      </Navbar.Brand>
     </Navbar>
   )
 }
@@ -46,22 +48,24 @@ function App () {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <NavHeader />
         <Section>
-          <NavHeader />
           <Route exact path='/' component={Home} />
           <Route path='/login' component={LoginForm} />
-          <SessionProvider>
-            <ReleaseProvider>
-              <Route path='/release/:id' component={ReleaseDetail} />
-              <Route path='/release/' component={Release} />
-            </ReleaseProvider>
-            <SongProvider>
-              <Route path='/song/:id' component={SongDetail} />
-              <Route path='/song/' component={Song} />
-            </SongProvider>
-            <Route path='/session/:id' component={SessionDetail} />
-            <Route path='/session/' component={Session} />
-          </SessionProvider>
+          <Container>
+            <SessionProvider>
+              <ReleaseProvider>
+                <Route path='/release/:id' component={ReleaseDetail} />
+                <Route path='/release/' component={Release} />
+              </ReleaseProvider>
+              <SongProvider>
+                <Route path='/song/:id' component={SongDetail} />
+                <Route path='/song/' component={Song} />
+              </SongProvider>
+              <Route path='/session/:id' component={SessionDetail} />
+              <Route path='/session/' component={Session} />
+            </SessionProvider>
+          </Container>
         </Section>
       </AuthProvider>
     </BrowserRouter>
