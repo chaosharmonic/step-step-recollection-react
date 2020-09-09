@@ -310,7 +310,8 @@ export const Session = () => {
 
 export const SessionDetail = () => {
   const { detail, setDetail, updateEntry } = useContext(context)
-  const { songs, player: { username }, sessionDate } = detail
+  const { songs, player: { username: player }, sessionDate } = detail
+  const { user: { username } } = useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
 
@@ -355,7 +356,7 @@ export const SessionDetail = () => {
 
   const PageContent = (
     <>
-      <h1>Player: {username}</h1>
+      <h1>Player: {player}</h1>
       <h1>Date: {date}</h1>
       <h1>Total songs: {songs.length} </h1>
       <h1>Total passed: {passed.length} </h1>
@@ -383,7 +384,7 @@ export const SessionDetail = () => {
       {updating
         ? <SessionQueue targetId={id} updateOuterState={handleToggleEdit} />
         : PageContent}
-      <Button onClick={handleToggleEdit}>{editText}</Button>
+      {username && <Button onClick={handleToggleEdit}>{editText}</Button>}
       <Button onClick={handleBack}>Go back!!</Button>
     </>
   )
