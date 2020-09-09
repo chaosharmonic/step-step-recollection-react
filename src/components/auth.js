@@ -17,6 +17,9 @@ export const LoginForm = () => {
   const { setUser } = useContext(AuthContext)
   const history = useHistory()
 
+  const demoUsername = import.meta.env.SNOWPACK_PUBLIC_DEMO_PLAYER_USERNAME
+  const demoPw = import.meta.env.SNOWPACK_PUBLIC_DEMO_PLAYER_PW
+
   const setFormValue = (event) => {
     const { name, value } = event.target
     const nextState = { ...formState }
@@ -38,12 +41,20 @@ export const LoginForm = () => {
   }
 
   const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
+  const DemoCredentials = () => (
+    <>
+      <h1>Demo Account Credentials (case sensitive)</h1>
+      <h1>Username: {demoUsername}</h1>
+      <h1>Pw: {demoPw}</h1>
+    </>
+  )
 
   return (
     <>
       {formField('username', 'Username')}
       {formField('password', 'Password')}
       <Button onClick={submitForm}>Login!</Button>
+      {demoUsername && demoPw && <DemoCredentials />}
     </>
   )
 }

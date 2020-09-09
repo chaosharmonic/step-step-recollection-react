@@ -6,7 +6,7 @@ import AuthReducer from '../reducers/auth'
 const isDevelop = null //import.meta.env.SNOWPACK_PUBLIC_ENVIRONMENT === 'development'
 
 const adminUser = isDevelop
-  ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER 
+  ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_USERNAME
   : null
 const adminId = isDevelop
   ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_ID 
