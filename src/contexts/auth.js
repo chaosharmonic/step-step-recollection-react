@@ -3,7 +3,7 @@ import Cookie from 'js-cookie'
 import { jwt_decode } from 'jwt-decode-es'
 import AuthReducer from '../reducers/auth'
 
-const isDevelop = null //import.meta.env.SNOWPACK_PUBLIC_ENVIRONMENT === 'development'
+const isDevelop = null //import.meta.env.MODE === 'development'
 
 const adminUser = isDevelop
   ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_USERNAME
