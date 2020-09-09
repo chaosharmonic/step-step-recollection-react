@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Column, Title, Button, Table, Pagination } from 'rbx'
+import { Column, Title, Button, Table, Loader, Pagination } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
@@ -72,6 +72,7 @@ export const Song = () => {
 
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
+  const [loading, setLoading] = useState(true)
 
   const location = useLocation()
   const isHidden = !location.pathname.replace(/\//g, '').endsWith(path)
@@ -81,18 +82,19 @@ export const Song = () => {
       const { docs, pageCount } = await getAllRecords()
       setEntries(docs)
       setPages(pageCount)
+      setLoading(false)
     }
     getRecords()
   }, [])
 
   const getPage = async (page) => {
-    const response = await getAllSongs(page)
+    if (!loading) setLoading(true)
     setCurrentPage(page)
-    // response.docs
-    // ?
-    setEntries(response.docs)
-    // :
-    console.log(response)
+    const response = await getAllSongs(page)
+    response.docs
+      ? setEntries(response.docs)
+      : console.log(response)
+    setLoading(false)
   }
 
   const handleDeleteRecord = async (id) => {
@@ -160,14 +162,14 @@ export const Song = () => {
       </Pagination>
     )
   }
-  //   edge cases
-  //     larger page skip interval for long entries
-  //     manual page selection
+  // TODO: handle edge cases
+  //  larger page skip interval for long entries
+  //  manual page selection
 
   const handleSetCreating = () => setCreating(true)
 
   const entriesList = entries && entries.map(entry => {
-    const { title, _id } = entry
+    const { title, _id, release } = entry
     const id = _id
     const submitDelete = () => handleDeleteRecord(id)
     const setDeletePrompt = () => setDeleteTarget(id)
@@ -188,39 +190,53 @@ export const Song = () => {
           <Link to={`/${path}/${id}`}>{title}</Link>
         </Table.Cell>
         <Table.Cell>
-          {sessionTarget !== id && deleteTarget !== id &&
-            <>
-              {username &&
-                <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
-              {isAdmin &&
-                <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
-            </>}
-          {sessionTarget === id &&
-            <SessionQueueForm
-              song={entry}
-              setOuterTarget={setSessionTarget}
-              handleSubmit={addToCurrentSession}
-            />}
-          {deleteTarget === id &&
-            <DeleteConfirmation />}
+          <Link to={`/release/${release._id}`}>{release.title}</Link>
         </Table.Cell>
+        {isAdmin && (
+          <Table.Cell>
+            {deleteTarget === id
+              ? <DeleteConfirmation />
+              : <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
+          </Table.Cell>
+        )}
+        {username && (
+          <Table.Cell>
+            {sessionTarget === id
+              ? <SessionQueueForm
+                song={entry}
+                setOuterTarget={setSessionTarget}
+                handleSubmit={addToCurrentSession}
+              />
+              : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+          </Table.Cell>
+        )}
       </Table.Row>
     )
   })
 
   return (
-    <div className={isHidden && 'isHidden'}>
+    <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
       {creating
         ? <SongForm setSubmitting={setCreating} />
         : isAdmin &&
           <Button onClick={handleSetCreating}>Add new</Button>}
       <SongPagination />
-      <Table>
-        <Table.Body>
-          {entriesList}
-        </Table.Body>
-      </Table>
+      {loading
+        ? <Loader />
+        : (
+          <Table hoverable>
+            <Table.Head>
+              <Table.Row>
+                <Table.Heading>Title</Table.Heading>
+                <Table.Heading>Release</Table.Heading>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {entriesList}
+            </Table.Body>
+          </Table>
+        )}
     </div>
   )
 }
@@ -367,6 +383,7 @@ export const SongDetail = () => {
   } = detail
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const handleToggleEdit = () => {
     setUpdating(!updating)
@@ -378,6 +395,7 @@ export const SongDetail = () => {
   const handleGetRecord = async (id) => {
     const response = await getRecordById(id)
     setDetail(response)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -387,13 +405,25 @@ export const SongDetail = () => {
     getDetail()
   }, [id])
 
-  const Content = () => ['title', 'artist', 'release', 'length']
-    .map(key => <h1 key={key}>{key}: {detail[key]}</h1>)
+  const PageContent = () => {
+    const { title, artist, release, length, titletranslit, artisttranslit } = detail
+    if (!(title && artist && release)) return null
+    return (
+      <>
+        <h1>Title: {title}</h1>
+        {titletranslit && <h1>Title (Romanized): {titletranslit}</h1>}
+        <h1>Artist: {artist}</h1>
+        {artisttranslit && <h1>Artist (Romanized): {artisttranslit}</h1>}
+        {length > 0 && <h1>Length: {length}</h1>}
+        <h1>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></h1>
+      </>
+    )
+  }
 
   const handleBack = () => history.goBack()
   const editText = updating ? 'Cancel Edit' : 'Edit'
 
-  return (
+  return loading ? <Loader /> : (
     <>
       <h1>{path} detail!</h1>
       {isAdmin &&
@@ -403,8 +433,8 @@ export const SongDetail = () => {
         ? <SongForm
           targetId={id}
           setSubmitting={setUpdating}
-          />
-        : <Content />}
+        />
+        : <PageContent />}
     </>
   )
 }

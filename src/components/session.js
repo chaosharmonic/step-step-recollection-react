@@ -123,7 +123,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       return (
         <Table.Row key={id}>
           <Table.Cell>
-            {title}
+            <Link to={`/song/${id}`}>{title}</Link>
           </Table.Cell>
           {editTarget !== i
             ? (
@@ -154,7 +154,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
     })
   return (
     <>
-      <Table>
+      <Table hoverable>
         {entriesList}
       </Table>
       {formField('sessionDate', 'Session Date')}
@@ -275,24 +275,31 @@ export const Session = () => {
         <Table.Cell>
           {username}
         </Table.Cell>
-        <Table.Cell>
-          {canDelete &&
-            (deleteTarget === id
+        {canDelete && (
+          <Table.Cell>
+            {(deleteTarget === id
               ? <DeleteConfirmation />
               : <Button onClick={setDeleteConfirmation}>Delete</Button>)}
-        </Table.Cell>
+          </Table.Cell>
+        )}
       </Table.Row>
     )
   })
 
   return (
-    <div className={isHidden && 'isHidden'}>
-      <Title>{path} route!</Title>
+    <div className={isHidden ? 'isHidden' : ''}>
+      <Title>{path}s</Title>
       <h1>Current session:</h1>
       {songs.length
         ? <SessionQueue songs={songs} />
         : <p>Session is empty!</p>}
-      <Table>
+      <Table hoverable>
+        <Table.Head>
+          <Table.Row>
+            <Table.Heading>Date</Table.Heading>
+            <Table.Heading>Player</Table.Heading>
+          </Table.Row>
+        </Table.Head>
         <Table.Body>
           {entriesList}
         </Table.Body>
@@ -324,12 +331,15 @@ export const SessionDetail = () => {
     getDetail()
   }, [id])
 
-  const entriesList = songs.map(({ id, title, difficulty, record: { passed } }) => {
+  const entriesList = songs.map(({ id, title, release, difficulty, record: { passed } }) => {
     return (
       <Table.Row key={id}>
         <Table.Cell>
-          {title}
+          <Link to={`/song/${id}`}>{title}</Link>
         </Table.Cell>
+        {/* <Table.Cell>
+          <Link to={`/release/${release._id}`}>{release.title}</Link>
+        </Table.Cell> */}
         <Table.Cell>
           {difficulty}
         </Table.Cell>
@@ -343,13 +353,21 @@ export const SessionDetail = () => {
   const passed = songs.filter(song => song.record.passed)
   const date = sessionDate && format(new Date(sessionDate), 'MM/dd/yyyy')
 
-  const content = (
+  const PageContent = (
     <>
       <h1>Player: {username}</h1>
       <h1>Date: {date}</h1>
       <h1>Total songs: {songs.length} </h1>
       <h1>Total passed: {passed.length} </h1>
-      <Table>
+      <Table hoverable>
+        <Table.Head>
+          <Table.Row>
+            <Table.Heading>Song</Table.Heading>
+            {/* <Table.Heading>Release</Table.Heading> */}
+            <Table.Heading>Difficulty</Table.Heading>
+            <Table.Heading>Result</Table.Heading>
+          </Table.Row>
+        </Table.Head>
         {entriesList}
       </Table>
     </>
@@ -364,7 +382,7 @@ export const SessionDetail = () => {
       <h1>{path} detail!</h1>
       {updating
         ? <SessionQueue targetId={id} updateOuterState={handleToggleEdit} />
-        : content}
+        : PageContent}
       <Button onClick={handleToggleEdit}>{editText}</Button>
       <Button onClick={handleBack}>Go back!!</Button>
     </>

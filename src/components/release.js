@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Button, Table } from 'rbx'
+import { Title, Button, Table, Loader } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -38,6 +38,7 @@ export const Release = () => {
   const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
   const [creating, setCreating] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
+  const [loading, setLoading] = useState(false)
 
   const location = useLocation()
   const isHidden = !location.pathname.replace(/\//g, '').endsWith(path)
@@ -46,6 +47,7 @@ export const Release = () => {
     async function getRecords () {
       const releases = await getAllRecords()
       setEntries(releases)
+      setLoading(false)
     }
     getRecords()
   }, [])
@@ -73,27 +75,31 @@ export const Release = () => {
       </>
     )
 
-    return (
+    return loading ? <Loader /> : (
       <Table.Row key={id}>
         <Table.Cell>
           <Link to={`/${path}/${id}`}>{title}</Link>
         </Table.Cell>
-        <Table.Cell>
-          {
-            deleteTarget === id
+        {isAdmin && (
+          <Table.Cell>
+            {deleteTarget === id
               ? <DeleteConfirmation />
-              : isAdmin &&
-                <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>
-          }
-        </Table.Cell>
+              : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>}
+          </Table.Cell>
+        )}
       </Table.Row>
     )
   })
 
   return (
-    <div className={isHidden && 'isHidden'}>
+    <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
-      <Table>
+      <Table hoverable>
+        <Table.Head>
+          <Table.Row>
+            <Table.Heading>Title</Table.Heading>
+          </Table.Row>
+        </Table.Head>
         <Table.Body>
           {entriesList}
         </Table.Body>
@@ -183,7 +189,7 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
       {formField('title', 'Title')}
       {formField('scale', 'Scale', ['DDR', 'DDR X', 'ITG'])}
       {formField('numPanels', 'Number of panels')}
-      {formField('releaseDate', 'Release date (MM/dd/yyyy)')}
+      {formField('releaseDate', 'Release date (MM/DD/YYYY)')}
       {formField('releaseType', 'Release type', ['Arcade', 'Console', 'Custom'])}
       <Button onClick={targetId ? submitForm : handleCreateRecord}>
         {submitButtonText}
@@ -196,27 +202,29 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 export const ReleaseDetail = () => {
   const { detail, setDetail, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
-  const { username, isAdmin } = useContext(AuthContext)
+  const { user: { username, isAdmin } } = useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
 
   const handleSelectEdit = () => setUpdating(true)
 
   const location = useLocation()
-  const id = location.pathname.replace(`/${path}/`, '')
+  const routeId = location.pathname.replace(`/${path}/`, '')
 
   const handleGetRecord = async (id) => {
     const response = await getRecordById(id)
     setDetail(response)
+    setLoading(false)
   }
 
   useEffect(() => {
     async function getDetail () {
-      handleGetRecord(id)
+      handleGetRecord(routeId)
     }
     getDetail()
-  }, [id])
+  }, [routeId])
 
   const songsMap = detail.songs.map(song => {
     const id = song._id
@@ -230,27 +238,38 @@ export const ReleaseDetail = () => {
           <Link to={`/song/${id}`}>{title}</Link>
         </Table.Cell>
 
-        <Table.Cell>
-          {sessionTarget === id
-            ? <SessionQueueForm
-              song={song}
-              setOuterTarget={setSessionTarget}
-              handleSubmit={addToCurrentSession}
+        {username && (
+          <Table.Cell>
+            {sessionTarget === id
+              ? <SessionQueueForm
+                song={song}
+                setOuterTarget={setSessionTarget}
+                handleSubmit={addToCurrentSession}
               />
-            : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
-        </Table.Cell>
+              : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+          </Table.Cell>
+        )}
       </Table.Row>
     )
   })
 
-  const content = Object.keys(detail.release)
-    .filter(key => !['_id', '__v'].includes(key))
-    .map(key => <h1 key={key}>{key}: {detail.release[key]}</h1>)
+  const PageContent = () => {
+    const { release: { title, releaseDate, scale, numPanels, releaseType } } = detail
+    return (
+      <>
+        <h1>Title: {title}</h1>
+        {releaseDate && <h1>Release Date: {format(new Date(releaseDate), 'MM/dd/yyyy')}</h1>}
+        {scale && <h1>Scale: {scale}</h1>}
+        <h1>Number of Panels: {numPanels}</h1>
+        {releaseType && <h1>Release Type: {releaseType}</h1>}
+      </>
+    )
+  }
 
   const handleBack = () => history.goBack()
   const editText = updating ? 'Cancel Edit' : 'Edit'
 
-  return (
+  return loading ? <Loader /> : (
     <>
       {isAdmin &&
         <Button onClick={handleSelectEdit}>{editText}</Button>}
@@ -259,10 +278,15 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-          />
-        : content}
+        />
+        : <PageContent />}
       <h1>Songs:</h1>
-      <Table>
+      <Table hoverable>
+        <Table.Head>
+          <Table.Row>
+            <Table.Heading>Title</Table.Heading>
+          </Table.Row>
+        </Table.Head>
         <Table.Body>
           {songsMap}
         </Table.Body>
