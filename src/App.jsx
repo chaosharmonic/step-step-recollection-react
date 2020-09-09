@@ -24,16 +24,16 @@ const NavHeader = () => {
   const { username = null } = user
   return (
     <Navbar fixed='bottom'>
-      <Navbar.Item>
+      <Navbar.Item as='div'>
         <Link to='/release/'>Release</Link>
       </Navbar.Item>
-      <Navbar.Item>
+      <Navbar.Item as='div'>
         <Link to='/song/'>Song</Link>
       </Navbar.Item>
-      <Navbar.Item>
+      <Navbar.Item as='div'>
         <Link to='/session/'>Session</Link>
       </Navbar.Item>
-      <Navbar.Item>
+      <Navbar.Item as='div'>
         {username
           ? <LogoutButton />
           : <Link to='/login/'>Login</Link>}
@@ -49,8 +49,8 @@ function App () {
         <Section>
           <NavHeader />
           <Route exact path='/' component={Home} />
+          <Route path='/login' component={LoginForm} />
           <SessionProvider>
-            <Route path='/login' component={LoginForm} />
             <ReleaseProvider>
               <Route path='/release/:id' component={ReleaseDetail} />
               <Route path='/release/' component={Release} />
