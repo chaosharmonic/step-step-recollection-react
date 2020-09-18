@@ -28,7 +28,7 @@ export const Home = () => (
       </ul>
       <p>
           This site was built using React, Express, and MongoDB.
-          It's still under active development, so don't hesitate to check back here or on my and see what's new.
+          It's still under active development, so don't hesitate to check back and see what's new.
       </p>
       <p>
           You can also check out updates as they happen, for this and other projects,
