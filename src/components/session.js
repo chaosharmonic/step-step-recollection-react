@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
-import { Button, Title, Table } from 'rbx'
+import { Button, Container, Title, Table } from 'rbx'
 import { parse, format, isValid } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
@@ -62,6 +62,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
     const body = {
       payload: { songs: [...entries], sessionDate: date }
     }
+    console.log(body)
     const response = await updateRecord(id, body)
     if (response._id) {
       updateEntry(response)
@@ -188,7 +189,10 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
 
   const availablePads = [...new Set(charts
     .map(chart => chart.numPads)
-  )]
+  )].map(count => ({
+    key: count,
+    text: count === 2 ? 'Double' : 'Single'
+  }))
 
   const availableDifficulties = availableCharts
     .filter(chart => Number(chart.numPads) === Number(formState.numPads))
@@ -213,13 +217,15 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
   const submitText = 'Save chart'
 
   return (
-    <>
-      {formField('numPads', 'Style', availablePads)}
-      {formField('difficulty', 'Difficulty', availableDifficulties)}
-      {formField('record.passed', 'Passed?', boolPair)}
+    <Container>
+      <Container className='menuOptions'>
+        {formField('numPads', 'Style', availablePads)}
+        {formField('difficulty', 'Difficulty', availableDifficulties)}
+        {formField('record.passed', 'Passed?', boolPair)}
+      </Container>
       <Button size='small' onClick={cancelSubmit}>Cancel</Button>
       <Button size='small' onClick={handleSelectSubmit}>{submitText}</Button>
-    </>
+    </Container>
   )
 }
 

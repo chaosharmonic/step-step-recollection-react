@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Column, Title, Button, Table, Loader, Pagination } from 'rbx'
+import { Column, Container, Title, Button, Table, Loader, Pagination } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
@@ -7,6 +7,7 @@ import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
 import { generateFormField } from './scaffold/formField'
+import { Paginate } from './scaffold/paginate'
 
 const [
   createRecord,
@@ -66,10 +67,10 @@ const constructCharts = (form) => {
 export const Song = () => {
   const { entries, pageCount, setEntries, setPages, deleteEntry } = useContext(context)
   const { user: { username, isAdmin } } = useContext(AuthContext)
-  const { addToCurrentSession } = useContext(SessionContext)
   const [creating, setCreating] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
+  const [menuTarget, setMenuTarget] = useState(initialTargetId)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
   const [sessionTarget, setSessionTarget] = useState(initialTargetId)
   const [loading, setLoading] = useState(true)
@@ -104,78 +105,21 @@ export const Song = () => {
       : console.log(response)
   }
 
-  const SongPagination = () => {
-    if (entries.length === 0) return null
-    const pageNumbers = [
-      1,
-      currentPage - 2,
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      currentPage + 2,
-      pageCount
-    ].sort((a, b) => a - b)
-      .filter((num, index, arr) => num > 0 &&
-        num !== arr[index - 1] &&
-        num <= pageCount)
-      .map((num, index, arr) => {
-        const handleGetPage = () => getPage(num)
-        return (
-          <>
-            {(!(arr[index - 1] === num - 1) &&
-            num !== pageCount &&
-            num !== 1) && <Pagination.Ellipsis />}
-            <Pagination.Link
-              current={num === currentPage}
-              onClick={handleGetPage}
-            >
-              {num}
-            </Pagination.Link>
-            {(!(arr[index + 1] === num + 1) &&
-              num !== pageCount &&
-              num !== 1) && <Pagination.Ellipsis />}
-          </>
-        )
-      })
-
-    const getLastOne = () => getPage(currentPage - 1)
-    const getNextOne = () => getPage(currentPage + 1)
-    return (
-      <Pagination>
-        {currentPage !== 1 &&
-          <Pagination.Step
-            align='previous'
-            onClick={getLastOne}
-          >
-            Previous
-          </Pagination.Step>}
-        {currentPage !== pageCount &&
-          <Pagination.Step
-            align='next'
-            onClick={getNextOne}
-          >
-          Next
-          </Pagination.Step>}
-        <Pagination.List>
-          {pageNumbers}
-        </Pagination.List>
-      </Pagination>
-    )
-  }
-  // TODO: handle edge cases
-  //  larger page skip interval for long entries
-  //  manual page selection
-
   const handleSetCreating = () => setCreating(true)
 
-  const entriesList = entries && entries.map(entry => {
-    const { title, _id, release } = entry
-    const id = _id
+  const SongRow = ({ song }) => {
+    const { title, release, _id: id } = song
+    const { addToCurrentSession } = useContext(SessionContext)
     const submitDelete = () => handleDeleteRecord(id)
     const setDeletePrompt = () => setDeleteTarget(id)
     const cancelDelete = () => setDeleteTarget(initialTargetId)
 
     const setSessionPrompt = () => setSessionTarget(id)
+
+    const toggleSongMenu = () => menuTarget === id
+      ? setMenuTarget(initialTargetId)
+      : setMenuTarget(id)
+    const menuToggleText = menuTarget === id ? 'Collapse' : 'Expand'
 
     const DeleteConfirmation = () => (
       <>
@@ -188,31 +132,39 @@ export const Song = () => {
       <Table.Row key={id}>
         <Table.Cell>
           <Link to={`/${path}/${id}`}>{title}</Link>
+          {menuTarget === id && (
+            <Container className='menu'>
+              <Container>
+                {sessionTarget === id
+                  ? <SessionQueueForm
+                    song={song}
+                    setOuterTarget={setSessionTarget}
+                    handleSubmit={addToCurrentSession}
+                  />
+                  : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+              </Container>
+              {isAdmin && (
+                <Container>
+                  {deleteTarget === id
+                    ? <DeleteConfirmation />
+                    : <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
+                </Container>
+              )}
+            </Container>
+          )}
         </Table.Cell>
         <Table.Cell>
           <Link to={`/release/${release._id}`}>{release.title}</Link>
         </Table.Cell>
-        {isAdmin && (
+        {username &&
           <Table.Cell>
-            {deleteTarget === id
-              ? <DeleteConfirmation />
-              : <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
-          </Table.Cell>
-        )}
-        {username && (
-          <Table.Cell>
-            {sessionTarget === id
-              ? <SessionQueueForm
-                song={entry}
-                setOuterTarget={setSessionTarget}
-                handleSubmit={addToCurrentSession}
-              />
-              : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
-          </Table.Cell>
-        )}
+            <Button size='small' onClick={toggleSongMenu}>{menuToggleText}</Button>
+          </Table.Cell>}
       </Table.Row>
     )
-  })
+  }
+
+  const entriesList = entries && entries.map(song => <SongRow key={song._id} song={song} />)
 
   return (
     <div className={isHidden ? 'isHidden' : ''}>
@@ -221,7 +173,12 @@ export const Song = () => {
         ? <SongForm setSubmitting={setCreating} />
         : isAdmin &&
           <Button onClick={handleSetCreating}>Add new</Button>}
-      <SongPagination />
+      <Paginate
+        getPage={getPage}
+        entries={entries}
+        currentPage={currentPage}
+        pageCount={pageCount}
+      />
       {loading
         ? <Loader />
         : (
@@ -230,6 +187,7 @@ export const Song = () => {
               <Table.Row>
                 <Table.Heading>Title</Table.Heading>
                 <Table.Heading>Release</Table.Heading>
+                <Table.Heading>Menu</Table.Heading>
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -316,7 +274,7 @@ const SongForm = ({ targetId, setSubmitting }) => {
   }
 
   const submitButtonText = targetId
-    ? `Update ${path}!`
+    ? `Update ${path}`
     : `Add new ${path}!`
 
   const submitForm = () => {
