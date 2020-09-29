@@ -1,6 +1,5 @@
 import React, { useContext } from 'react'
-
-import { BrowserRouter, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Link } from 'react-router-dom'
 import { Section, Container, Navbar } from 'rbx'
 import 'bulmaswatch/cyborg/bulmaswatch.min.css'
 
@@ -48,21 +47,23 @@ function App () {
       <AuthProvider>
         <Navigation />
         <Section>
-          <Route exact path='/' component={Home} />
-          <Route path='/login' component={LoginForm} />
           <Container>
-            <SessionProvider>
-              <ReleaseProvider>
-                <Route path='/release/:id' component={ReleaseDetail} />
-                <Route path='/release/' component={Release} />
-              </ReleaseProvider>
-              <SongProvider>
-                <Route path='/song/:id' component={SongDetail} />
-                <Route path='/song/' component={Song} />
-              </SongProvider>
-              <Route path='/session/:id' component={SessionDetail} />
-              <Route path='/session/' component={Session} />
-            </SessionProvider>
+            <Switch>
+              <Route exact path='/' component={Home} />
+              <Route path='/login' component={LoginForm} />
+              <SessionProvider>
+                <ReleaseProvider>
+                  <Route path='/release/:id' component={ReleaseDetail} />
+                  <Route path='/release/' component={Release} />
+                </ReleaseProvider>
+                <SongProvider>
+                  <Route path='/song/:id' component={SongDetail} />
+                  <Route path='/song/' component={Song} />
+                </SongProvider>
+                <Route path='/session/:id' component={SessionDetail} />
+                <Route path='/session/' component={Session} />
+              </SessionProvider>
+            </Switch>
           </Container>
         </Section>
       </AuthProvider>
