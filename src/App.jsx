@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom'
 import { Section, Container, Navbar } from 'rbx'
+import './App.css'
 import 'bulmaswatch/cyborg/bulmaswatch.min.css'
 
 import { Home } from './components/home'
