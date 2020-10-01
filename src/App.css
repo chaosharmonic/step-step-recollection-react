@@ -12,6 +12,10 @@
   animation: var(--fade);
 }
 
+#login {
+  max-width: 350px;
+}
+
 .isHidden {
   display: none;
 }
