@@ -1,5 +1,15 @@
+@keyframes fadeIn {from {opacity: 0;} to {opacity: 1;}}
+
+:root {
+  --fade: fadeIn ease-in 500ms;
+}
+
 .App {
   text-align: center;
+}
+
+.content, table {
+  animation: var(--fade);
 }
 
 .isHidden {
