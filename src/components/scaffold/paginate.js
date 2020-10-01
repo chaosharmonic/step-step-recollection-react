@@ -1,15 +1,14 @@
 import React from 'react'
 import { Pagination } from 'rbx'
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 
 export const Paginate = ({ getPage, entries, currentPage, pageCount }) => {
   if (entries.length === 0) return null
   const pageNumbers = [
     1,
-    currentPage - 2,
     currentPage - 1,
     currentPage,
     currentPage + 1,
-    currentPage + 2,
     pageCount
   ].sort((a, b) => a - b)
     .filter((num, index, arr) => num > 0 &&
@@ -47,14 +46,14 @@ export const Paginate = ({ getPage, entries, currentPage, pageCount }) => {
           align='previous'
           onClick={getLastOne}
         >
-            Previous
+          <IoIosArrowBack />
         </Pagination.Step>}
       {currentPage !== pageCount &&
         <Pagination.Step
           align='next'
           onClick={getNextOne}
         >
-          Next
+          <IoIosArrowForward />
         </Pagination.Step>}
     </Pagination>
   )

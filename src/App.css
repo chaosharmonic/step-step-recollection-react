@@ -24,8 +24,14 @@
   padding: 5%;
 }
 
-@media screen and (min-width: 800px) {
   .pagination {
-    max-width: 80%;
+    max-width: 700px;
   }
+
+.pagination-list {
+  min-width: 75%;
+}
+
+.pagination-previous, .pagination-next {
+  max-width: 40px;
 }
