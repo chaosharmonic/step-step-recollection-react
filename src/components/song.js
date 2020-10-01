@@ -140,7 +140,7 @@ export const Song = () => {
                     song={song}
                     setOuterTarget={setSessionTarget}
                     handleSubmit={addToCurrentSession}
-                  />
+                    />
                   : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
               </Container>
               {isAdmin && (
@@ -187,7 +187,7 @@ export const Song = () => {
               <Table.Row>
                 <Table.Heading>Title</Table.Heading>
                 <Table.Heading>Release</Table.Heading>
-                <Table.Heading>Menu</Table.Heading>
+                {username && <Table.Heading>Menu</Table.Heading>}
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -391,7 +391,7 @@ export const SongDetail = () => {
         ? <SongForm
           targetId={id}
           setSubmitting={setUpdating}
-        />
+          />
         : <PageContent />}
     </>
   )
