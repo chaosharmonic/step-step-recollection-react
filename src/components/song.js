@@ -1,6 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { Column, Container, Title, Button, Table, Loader, Pagination } from 'rbx'
+import React, { useContext, useEffect, useState, useRef } from 'react'
+import { Column, Container, Title, Button, Table, Loader } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
+import { debounce } from 'lodash-es'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
 import { SessionQueueForm } from './session'
@@ -69,6 +70,7 @@ export const Song = () => {
   const { user: { username, isAdmin } } = useContext(AuthContext)
   const [creating, setCreating] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [fetchTarget, setFetchTarget] = useState(1)
 
   const [menuTarget, setMenuTarget] = useState(initialTargetId)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
@@ -88,14 +90,30 @@ export const Song = () => {
     getRecords()
   }, [])
 
+  useEffect(() => {
+    async function renderNextPage () {
+      await getPage(fetchTarget)
+    }
+    renderNextPage()
+  }, [fetchTarget])
+
+  useEffect(() => setLoading(false), [entries])
+
   const getPage = async (page) => {
-    if (!loading) setLoading(true)
-    setCurrentPage(page)
     const response = await getAllSongs(page)
     response.docs
       ? setEntries(response.docs)
       : console.log(response)
-    setLoading(false)
+  }
+
+  const debouncePageFetch = useRef(
+    debounce((page) => setFetchTarget(page), 1000)
+  ).current
+
+  const handleChangePage = (page) => {
+    if (!loading) setLoading(true)
+    setCurrentPage(page)
+    debouncePageFetch(page)
   }
 
   const handleDeleteRecord = async (id) => {
@@ -174,7 +192,7 @@ export const Song = () => {
         : isAdmin &&
           <Button onClick={handleSetCreating}>Add new</Button>}
       <Paginate
-        getPage={getPage}
+        getPage={handleChangePage}
         entries={entries}
         currentPage={currentPage}
         pageCount={pageCount}
