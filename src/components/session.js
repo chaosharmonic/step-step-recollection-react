@@ -154,13 +154,13 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       )
     })
   return (
-    <>
+    <Container>
       <Table hoverable>
         {entriesList}
       </Table>
       {formField('sessionDate', 'Session Date')}
       <Button onClick={handleSubmitSession}>Save session!</Button>
-    </>
+    </Container>
   )
 }
 
@@ -299,17 +299,19 @@ export const Session = () => {
       {songs.length
         ? <SessionQueue songs={songs} />
         : <p>Session is empty!</p>}
-      <Table hoverable>
-        <Table.Head>
-          <Table.Row>
-            <Table.Heading>Date</Table.Heading>
-            <Table.Heading>Player</Table.Heading>
-          </Table.Row>
-        </Table.Head>
-        <Table.Body>
-          {entriesList}
-        </Table.Body>
-      </Table>
+      <Container>
+        <Table hoverable>
+          <Table.Head>
+            <Table.Row>
+              <Table.Heading>Date</Table.Heading>
+              <Table.Heading>Player</Table.Heading>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {entriesList}
+          </Table.Body>
+        </Table>
+      </Container>
     </div>
   )
 }
@@ -366,17 +368,19 @@ export const SessionDetail = () => {
       <h1>Date: {date}</h1>
       <h1>Total songs: {songs.length} </h1>
       <h1>Total passed: {passed.length} </h1>
-      <Table hoverable>
-        <Table.Head>
-          <Table.Row>
-            <Table.Heading>Song</Table.Heading>
-            {/* <Table.Heading>Release</Table.Heading> */}
-            <Table.Heading>Difficulty</Table.Heading>
-            <Table.Heading>Result</Table.Heading>
-          </Table.Row>
-        </Table.Head>
-        {entriesList}
-      </Table>
+      <Container>
+        <Table hoverable>
+          <Table.Head>
+            <Table.Row>
+              <Table.Heading>Song</Table.Heading>
+              {/* <Table.Heading>Release</Table.Heading> */}
+              <Table.Heading>Difficulty</Table.Heading>
+              <Table.Heading>Result</Table.Heading>
+            </Table.Row>
+          </Table.Head>
+          {entriesList}
+        </Table>
+      </Container>
     </>
   )
 

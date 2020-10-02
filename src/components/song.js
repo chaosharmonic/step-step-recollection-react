@@ -85,7 +85,6 @@ export const Song = () => {
       const { docs, pageCount } = await getAllRecords()
       setEntries(docs)
       setPages(pageCount)
-      setLoading(false)
     }
     getRecords()
   }, [])
@@ -158,7 +157,7 @@ export const Song = () => {
                     song={song}
                     setOuterTarget={setSessionTarget}
                     handleSubmit={addToCurrentSession}
-                    />
+                  />
                   : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
               </Container>
               {isAdmin && (
@@ -197,21 +196,23 @@ export const Song = () => {
         currentPage={currentPage}
         pageCount={pageCount}
       />
-      {loading
+      {loading || !entriesList.length
         ? <Loader />
         : (
-          <Table hoverable>
-            <Table.Head>
-              <Table.Row>
-                <Table.Heading>Title</Table.Heading>
-                <Table.Heading>Release</Table.Heading>
-                {username && <Table.Heading>Menu</Table.Heading>}
-              </Table.Row>
-            </Table.Head>
-            <Table.Body>
-              {entriesList}
-            </Table.Body>
-          </Table>
+          <Container>
+            <Table hoverable>
+              <Table.Head>
+                <Table.Row>
+                  <Table.Heading>Title</Table.Heading>
+                  <Table.Heading>Release</Table.Heading>
+                  {username && <Table.Heading>Menu</Table.Heading>}
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {entriesList}
+              </Table.Body>
+            </Table>
+          </Container>
         )}
     </div>
   )
@@ -409,7 +410,7 @@ export const SongDetail = () => {
         ? <SongForm
           targetId={id}
           setSubmitting={setUpdating}
-          />
+        />
         : <PageContent />}
     </>
   )

@@ -8,7 +8,7 @@
   text-align: center;
 }
 
-.content, table {
+.container {
   animation: var(--fade);
 }
 
@@ -28,9 +28,9 @@
   padding: 5%;
 }
 
-  .pagination {
-    max-width: 700px;
-  }
+.pagination {
+  max-width: 700px;
+}
 
 .pagination-list {
   min-width: 75%;
