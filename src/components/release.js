@@ -97,7 +97,7 @@ export const Release = () => {
       {loading
         ? <Loader />
         : (
-          <Container>
+          <Container className='transition'>
             <Table hoverable>
               <Table.Head>
                 <Table.Row>
@@ -251,7 +251,7 @@ export const ReleaseDetail = () => {
                 song={song}
                 setOuterTarget={setSessionTarget}
                 handleSubmit={addToCurrentSession}
-              />
+                />
               : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
           </Table.Cell>
         )}
@@ -284,7 +284,7 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-        />
+          />
         : <PageContent />}
       <h1>Songs:</h1>
       <Table hoverable>
