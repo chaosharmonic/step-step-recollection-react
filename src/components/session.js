@@ -148,7 +148,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
               song={song}
               setOuterTarget={clearEditTarget}
               handleSubmit={handleEdit}
-            />}
+              />}
 
         </Table.Row>
       )
@@ -299,7 +299,7 @@ export const Session = () => {
       {songs.length
         ? <SessionQueue songs={songs} />
         : <p>Session is empty!</p>}
-      <Container>
+      <Container className='transition'>
         <Table hoverable>
           <Table.Head>
             <Table.Row>
@@ -368,7 +368,7 @@ export const SessionDetail = () => {
       <h1>Date: {date}</h1>
       <h1>Total songs: {songs.length} </h1>
       <h1>Total passed: {passed.length} </h1>
-      <Container>
+      <Container className='transition'>
         <Table hoverable>
           <Table.Head>
             <Table.Row>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Container, Title, Content } from 'rbx'
 
 export const Home = () => (
-  <Container>
+  <Container className='transition'>
     <Title>Step Step Recollection!</Title>
     <Content size='small'>
       <p>
