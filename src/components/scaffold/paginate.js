@@ -37,7 +37,7 @@ export const Paginate = ({ getPage, entries, currentPage, pageCount }) => {
   const getLastOne = () => getPage(currentPage - 1)
   const getNextOne = () => getPage(currentPage + 1)
   return (
-    <Pagination align='centered'>
+    <Pagination>
       <Pagination.List>
         {pageNumbers}
       </Pagination.List>

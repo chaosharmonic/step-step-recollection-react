@@ -4,20 +4,29 @@
   --fade: fadeIn ease-in 500ms;
 }
 
-.App {
-  text-align: center;
-}
-
 .transition {
   animation: var(--fade);
 }
 
-#login {
-  max-width: 350px;
-}
-
 .isHidden {
   display: none;
+}
+
+.container {
+  max-width: 900px;
+}
+
+.loader, table {
+  margin: 0 auto;
+}
+
+.title {
+  text-align: center;
+  text-transform: capitalize;
+}
+
+#login {
+  max-width: 350px;
 }
 
 .menuOptions {
@@ -30,12 +39,24 @@
 
 .pagination {
   max-width: 700px;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 .pagination-list {
-  min-width: 75%;
+  min-width: 50%;
+  margin-right: auto;
 }
 
 .pagination-previous, .pagination-next {
   max-width: 40px;
+}
+
+.content {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.is-small {
+  font-size: 0.9em !important;
 }
