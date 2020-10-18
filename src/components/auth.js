@@ -28,7 +28,8 @@ export const LoginForm = () => {
     setFormState(nextState)
   }
 
-  const submitForm = async () => {
+  const submitForm = async (event) => {
+    event.preventDefault()
     const body = {
       payload: { ...formState }
     }
@@ -50,12 +51,12 @@ export const LoginForm = () => {
   )
 
   return (
-    <>
+    <form id='login' onSubmit={submitForm}>
       {formField('username', 'Username')}
       {formField('password', 'Password')}
-      <Button onClick={submitForm}>Login!</Button>
+      <Button type='submit'>Login!</Button>
       {demoUsername && demoPw && <DemoCredentials />}
-    </>
+    </form>
   )
 }
 

@@ -1,9 +1,10 @@
 import React, { useContext } from 'react'
-
-import { BrowserRouter, Route, Link } from 'react-router-dom'
-import { Section, Container, Navbar, Title } from 'rbx'
+import { BrowserRouter, Switch, Route, Link } from 'react-router-dom'
+import { Section, Container, Navbar } from 'rbx'
+import './App.css'
 import 'bulmaswatch/cyborg/bulmaswatch.min.css'
 
+import { Home } from './components/home'
 import { LoginForm, LogoutButton } from './components/auth'
 import { Release, ReleaseDetail } from './components/release'
 import { Song, SongDetail } from './components/song'
@@ -13,18 +14,15 @@ import { ReleaseProvider } from './contexts/release'
 import { SongProvider } from './contexts/song'
 import { SessionProvider } from './contexts/session'
 
-const Home = () => (
-  <>
-    <Title>Step Step Recollection!</Title>
-  </>
-)
-
-const NavHeader = () => {
+const Navigation = () => {
   const { user = {} } = useContext(AuthContext)
   const { username = null } = user
   return (
     <Navbar fixed='bottom'>
       <Navbar.Brand>
+        <Navbar.Item as='div'>
+          <Link to='/'>Home</Link>
+        </Navbar.Item>
         <Navbar.Item as='div'>
           <Link to='/release/'>Release</Link>
         </Navbar.Item>
@@ -48,23 +46,25 @@ function App () {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NavHeader />
+        <Navigation />
         <Section>
-          <Route exact path='/' component={Home} />
-          <Route path='/login' component={LoginForm} />
           <Container>
-            <SessionProvider>
-              <ReleaseProvider>
-                <Route path='/release/:id' component={ReleaseDetail} />
-                <Route path='/release/' component={Release} />
-              </ReleaseProvider>
-              <SongProvider>
-                <Route path='/song/:id' component={SongDetail} />
-                <Route path='/song/' component={Song} />
-              </SongProvider>
-              <Route path='/session/:id' component={SessionDetail} />
-              <Route path='/session/' component={Session} />
-            </SessionProvider>
+            <Switch>
+              <Route exact path='/' component={Home} />
+              <Route path='/login' component={LoginForm} />
+              <SessionProvider>
+                <ReleaseProvider>
+                  <Route path='/release/:id' component={ReleaseDetail} />
+                  <Route path='/release/' component={Release} />
+                </ReleaseProvider>
+                <SongProvider>
+                  <Route path='/song/:id' component={SongDetail} />
+                  <Route path='/song/' component={Song} />
+                </SongProvider>
+                <Route path='/session/:id' component={SessionDetail} />
+                <Route path='/session/' component={Session} />
+              </SessionProvider>
+            </Switch>
           </Container>
         </Section>
       </AuthProvider>

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Button, Table, Loader } from 'rbx'
+import { Title, Button, Table, Container, Loader } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -75,7 +75,7 @@ export const Release = () => {
       </>
     )
 
-    return loading ? <Loader /> : (
+    return (
       <Table.Row key={id}>
         <Table.Cell>
           <Link to={`/${path}/${id}`}>{title}</Link>
@@ -94,16 +94,22 @@ export const Release = () => {
   return (
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
-      <Table hoverable>
-        <Table.Head>
-          <Table.Row>
-            <Table.Heading>Title</Table.Heading>
-          </Table.Row>
-        </Table.Head>
-        <Table.Body>
-          {entriesList}
-        </Table.Body>
-      </Table>
+      {loading
+        ? <Loader />
+        : (
+          <Container className='transition'>
+            <Table hoverable>
+              <Table.Head>
+                <Table.Row>
+                  <Table.Heading>Title</Table.Heading>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {entriesList}
+              </Table.Body>
+            </Table>
+          </Container>
+        )}
       {isAdmin && <Button onClick={handleSetCreating}>Add new</Button>}
       {creating && <ReleaseForm setSubmitting={setCreating} />}
     </div>
@@ -245,7 +251,7 @@ export const ReleaseDetail = () => {
                 song={song}
                 setOuterTarget={setSessionTarget}
                 handleSubmit={addToCurrentSession}
-              />
+                />
               : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
           </Table.Cell>
         )}
@@ -278,7 +284,7 @@ export const ReleaseDetail = () => {
         ? <ReleaseForm
           targetId={id}
           setSubmitting={setUpdating}
-        />
+          />
         : <PageContent />}
       <h1>Songs:</h1>
       <Table hoverable>
