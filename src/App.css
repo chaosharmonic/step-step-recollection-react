@@ -52,8 +52,12 @@ section {
 .listEntry :hover {
   background: rgba(100, 100, 100, 0.2);
 }
-.listEntry div :hover {
-  background: none;
+.listEntry > * :hover {
+  background: initial;
+}
+
+.control :hover {
+  background: white;
 }
 
 .menu {
