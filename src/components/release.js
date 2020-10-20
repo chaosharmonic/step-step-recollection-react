@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Button, Table, Container, Loader } from 'rbx'
+import { Title, Content, Column, Button, Table, Container, Loader, Content } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -61,7 +61,7 @@ export const Release = () => {
 
   const handleSetCreating = () => setCreating(true)
 
-  const entriesList = entries && entries.map(entry => {
+  const releasesList = entries && entries.map(entry => {
     const { title, _id } = entry
     const id = _id
     const confirmDelete = () => handleDeleteRecord(id)
@@ -76,18 +76,24 @@ export const Release = () => {
     )
 
     return (
-      <Table.Row key={id}>
-        <Table.Cell>
-          <Link to={`/${path}/${id}`}>{title}</Link>
-        </Table.Cell>
-        {isAdmin && (
-          <Table.Cell>
-            {deleteTarget === id
-              ? <DeleteConfirmation />
-              : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>}
-          </Table.Cell>
-        )}
-      </Table.Row>
+      <Container className='listEntry' key={id}>
+        <Content>
+          <Column.Group>
+            <Column size='four-fifths'>
+              <h6>
+                <Link to={`/${path}/${id}`}>{title}</Link>
+              </h6>
+            </Column>
+            {isAdmin && (
+              <Column>
+                {deleteTarget === id
+                  ? <DeleteConfirmation />
+                  : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>}
+              </Column>
+            )}
+          </Column.Group>
+        </Content>
+      </Container>
     )
   })
 
@@ -97,17 +103,8 @@ export const Release = () => {
       {loading
         ? <Loader />
         : (
-          <Container className='transition'>
-            <Table hoverable>
-              <Table.Head>
-                <Table.Row>
-                  <Table.Heading>Title</Table.Heading>
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                {entriesList}
-              </Table.Body>
-            </Table>
+          <Container className='transition frost'>
+            {releasesList}
           </Container>
         )}
       {isAdmin && <Button onClick={handleSetCreating}>Add new</Button>}
@@ -281,10 +278,12 @@ export const ReleaseDetail = () => {
         <Button onClick={handleSelectEdit}>{editText}</Button>}
       <Button onClick={handleBack}>Go back!!</Button>
       {updating
-        ? <ReleaseForm
-          targetId={id}
-          setSubmitting={setUpdating}
+        ? (
+          <ReleaseForm
+            targetId={id}
+            setSubmitting={setUpdating}
           />
+        )
         : <PageContent />}
       <h1>Songs:</h1>
       <Table hoverable>
