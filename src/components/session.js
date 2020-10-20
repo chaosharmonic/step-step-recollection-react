@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
-import { Button, Container, Title, Table } from 'rbx'
+import { Button, Container, Title, Content, Table } from 'rbx'
 import { parse, format, isValid } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
@@ -148,7 +148,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
               song={song}
               setOuterTarget={clearEditTarget}
               handleSubmit={handleEdit}
-              />}
+            />}
 
         </Table.Row>
       )
@@ -255,7 +255,7 @@ export const Session = () => {
       : console.log(response)
   }
 
-  const entriesList = entries && entries.map(entry => {
+  const entriesList = entries.length && entries.map(entry => {
     const { sessionDate, _id: id, player } = entry
     const { username } = player
     const submitDelete = () => handleDeleteRecord(id)
@@ -295,22 +295,28 @@ export const Session = () => {
   return (
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
-      <h1>Current session:</h1>
-      {songs.length
-        ? <SessionQueue songs={songs} />
-        : <p>Session is empty!</p>}
       <Container className='transition'>
-        <Table hoverable>
-          <Table.Head>
-            <Table.Row>
-              <Table.Heading>Date</Table.Heading>
-              <Table.Heading>Player</Table.Heading>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {entriesList}
-          </Table.Body>
-        </Table>
+        <Content>
+          <h5>Current session:</h5>
+          {songs.length
+            ? <SessionQueue songs={songs} />
+            : <p>Session is empty!</p>}
+        </Content>
+        {entriesList
+          ? (
+            <Table hoverable>
+              <Table.Head>
+                <Table.Row>
+                  <Table.Heading>Date</Table.Heading>
+                  <Table.Heading>Player</Table.Heading>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {entriesList}
+              </Table.Body>
+            </Table>
+          )
+          : null}
       </Container>
     </div>
   )

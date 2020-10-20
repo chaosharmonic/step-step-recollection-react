@@ -16,7 +16,7 @@
   max-width: 900px;
 }
 
-.loader, table {
+.container, .loader, table {
   margin: 0 auto;
 }
 
