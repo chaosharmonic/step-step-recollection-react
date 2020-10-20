@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
-import { Column, Container, Title, Button, Table, Loader } from 'rbx'
+import { Column, Container, Title, Button, Content, Loader } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { debounce } from 'lodash-es'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
@@ -124,7 +124,7 @@ export const Song = () => {
 
   const handleSetCreating = () => setCreating(true)
 
-  const SongRow = ({ song }) => {
+  const SongEntry = ({ song }) => {
     const { title, release, _id: id } = song
     const { addToCurrentSession } = useContext(SessionContext)
     const submitDelete = () => handleDeleteRecord(id)
@@ -146,42 +146,51 @@ export const Song = () => {
     )
 
     return (
-      <Table.Row key={id}>
-        <Table.Cell>
-          <Link to={`/${path}/${id}`}>{title}</Link>
-          {menuTarget === id && (
-            <Container className='menu'>
-              <Container>
-                {sessionTarget === id
-                  ? <SessionQueueForm
-                    song={song}
-                    setOuterTarget={setSessionTarget}
-                    handleSubmit={addToCurrentSession}
-                    />
-                  : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+      <Container className='listEntry' key={id}>
+        <Column.Group>
+          <Column size='four-fifths'>
+            <Content size='small'>
+              <h5>
+                <Link to={`/${path}/${id}`}>{title}</Link>
+              </h5>
+              <h6>
+                  Release: <Link to={`/release/${release._id}`}>{release.title}</Link>
+              </h6>
+            </Content>
+            {menuTarget === id && (
+              <Container className='menu'>
+                <>
+                  {sessionTarget === id
+                    ? (
+                      <SessionQueueForm
+                        song={song}
+                        setOuterTarget={setSessionTarget}
+                        handleSubmit={addToCurrentSession}
+                      />
+                    )
+                    : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+                </>
+                {isAdmin && (
+                  <Container>
+                    {deleteTarget === id
+                      ? <DeleteConfirmation />
+                      : <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
+                  </Container>
+                )}
               </Container>
-              {isAdmin && (
-                <Container>
-                  {deleteTarget === id
-                    ? <DeleteConfirmation />
-                    : <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
-                </Container>
-              )}
-            </Container>
+            )}
+          </Column>
+          {username && (
+            <Column>
+              <Button size='small' onClick={toggleSongMenu}>{menuToggleText}</Button>
+            </Column>
           )}
-        </Table.Cell>
-        <Table.Cell>
-          <Link to={`/release/${release._id}`}>{release.title}</Link>
-        </Table.Cell>
-        {username &&
-          <Table.Cell>
-            <Button size='small' onClick={toggleSongMenu}>{menuToggleText}</Button>
-          </Table.Cell>}
-      </Table.Row>
+        </Column.Group>
+      </Container>
     )
   }
 
-  const entriesList = entries && entries.map(song => <SongRow key={song._id} song={song} />)
+  const songsList = entries && entries.map(song => <SongEntry key={song._id} song={song} />)
 
   return (
     <div className={isHidden ? 'isHidden' : ''}>
@@ -196,22 +205,11 @@ export const Song = () => {
         currentPage={currentPage}
         pageCount={pageCount}
       />
-      {loading || !entriesList.length
+      {loading || !songsList.length
         ? <Loader />
         : (
-          <Container className='transition'>
-            <Table hoverable>
-              <Table.Head>
-                <Table.Row>
-                  <Table.Heading>Title</Table.Heading>
-                  <Table.Heading>Release</Table.Heading>
-                  {username && <Table.Heading>Menu</Table.Heading>}
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                {entriesList}
-              </Table.Body>
-            </Table>
+          <Container className='transition frost'>
+            {songsList}
           </Container>
         )}
     </div>
@@ -410,7 +408,7 @@ export const SongDetail = () => {
         ? <SongForm
           targetId={id}
           setSubmitting={setUpdating}
-          />
+        />
         : <PageContent />}
     </>
   )
