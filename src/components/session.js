@@ -228,7 +228,7 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
   const submitText = 'Save chart'
 
   return (
-    <Container>
+    <>
       <Container className='menuOptions'>
         {formField('numPads', 'Style', availablePads)}
         {formField('difficulty', 'Difficulty', availableDifficulties)}
@@ -236,7 +236,7 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
       </Container>
       <Button size='small' onClick={cancelSubmit}>Cancel</Button>
       <Button size='small' onClick={handleSelectSubmit}>{submitText}</Button>
-    </Container>
+    </>
   )
 }
 
