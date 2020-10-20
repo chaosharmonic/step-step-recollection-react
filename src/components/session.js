@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
-import { Button, Container, Title, Content, Table } from 'rbx'
+import { Column, Container, Content, Title, Button, Table } from 'rbx'
+import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io'
 import { parse, format, isValid } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
@@ -108,9 +109,9 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
 
   const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
 
-  const entriesList = entries
+  const sessionItems = entries
     .map((song, i) => {
-      const { id, title, difficulty } = song
+      const { id, title, difficulty, numPads, record: { passed } } = song
       const handleRemoveFromSession = () => remove(i)
       const isBeginning = i === 0
       const isEnd = i === songs.length - 1
@@ -121,43 +122,53 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       const handleSelectEdit = () => setEditTarget(i)
       const handleEdit = (state) => edit(i, state)
 
-      return (
-        <Table.Row key={id}>
-          <Table.Cell>
-            <Link to={`/song/${id}`}>{title}</Link>
-          </Table.Cell>
-          {editTarget !== i
-            ? (
-              <>
-                <Table.Cell>
-                  {difficulty}
-                </Table.Cell>
-                <Table.Cell>
-                  <Button onClick={handleRemoveFromSession}>Remove from session</Button>
-                </Table.Cell>
-                <Table.Cell>
-                  <Button onClick={handleSelectEdit}>Edit Chart</Button>
-                </Table.Cell>
-                <Table.Cell>
-                  {!isBeginning && <Button onClick={handleMoveUp}>Up</Button>}
-                  {!isEnd && <Button onClick={handleMoveDown}>Down</Button>}
-                </Table.Cell>
-              </>
-            )
-            : <SessionQueueForm
-              song={song}
-              setOuterTarget={clearEditTarget}
-              handleSubmit={handleEdit}
-            />}
+      const editing = editTarget === i
 
-        </Table.Row>
+      const style = numPads === 2 ? 'Double' : 'Single'
+
+      return (
+        <Container className='listEntry' key={id}>
+          <Column.Group>
+            <Column size='four-fifths'>
+              <Content size='small'>
+                <h5>
+                  <Link to={`/song/${id}`}>{title}</Link>
+                </h5>
+                {!editing
+                  ? (
+                    <>
+                      <p>{style}, {difficulty}</p>
+                      {/* <p>Level: placeholder</p>
+                        TODO: API and form updates */}
+                      <p>Passed: {passed ? 'Yes' : 'No'}</p>
+                    </>
+                  )
+                  : (
+                    <SessionQueueForm
+                      song={song}
+                      setOuterTarget={clearEditTarget}
+                      handleSubmit={handleEdit}
+                    />
+                  )}
+              </Content>
+            </Column>
+            {!editing && (
+              <Column>
+                <Button size='small' onClick={handleRemoveFromSession}>Clear</Button>
+                <Button size='small' onClick={handleSelectEdit}>Edit</Button>
+                {!isBeginning && <Button size='small' onClick={handleMoveUp}><IoIosArrowUp /></Button>}
+                {!isEnd && <Button size='small' onClick={handleMoveDown}><IoIosArrowDown /></Button>}
+              </Column>
+            )}
+
+          </Column.Group>
+        </Container>
       )
     })
+
   return (
     <Container>
-      <Table hoverable>
-        {entriesList}
-      </Table>
+      {sessionItems}
       {formField('sessionDate', 'Session Date')}
       <Button onClick={handleSubmitSession}>Save session!</Button>
     </Container>
@@ -255,7 +266,7 @@ export const Session = () => {
       : console.log(response)
   }
 
-  const entriesList = entries.length && entries.map(entry => {
+  const sessionsList = entries.length && entries.map(entry => {
     const { sessionDate, _id: id, player } = entry
     const { username } = player
     const submitDelete = () => handleDeleteRecord(id)
@@ -264,8 +275,8 @@ export const Session = () => {
 
     const DeleteConfirmation = () => (
       <>
-        <Button onClick={cancelDelete}>Cancel Delete</Button>
-        <Button onClick={submitDelete}>Confirm Delete</Button>
+        <Button size='small' onClick={cancelDelete}>Cancel Delete</Button>
+        <Button size='small' onClick={submitDelete}>Confirm Delete</Button>
       </>
     )
 
@@ -274,21 +285,25 @@ export const Session = () => {
     const canDelete = playerId === player.id || isAdmin
 
     return (
-      <Table.Row key={id}>
-        <Table.Cell>
-          <Link to={`/session/${id}`}>{date}</Link>
-        </Table.Cell>
-        <Table.Cell>
-          {username}
-        </Table.Cell>
-        {canDelete && (
-          <Table.Cell>
-            {(deleteTarget === id
-              ? <DeleteConfirmation />
-              : <Button onClick={setDeleteConfirmation}>Delete</Button>)}
-          </Table.Cell>
-        )}
-      </Table.Row>
+      <Container className='listEntry' key={id}>
+        <Column.Group>
+          <Column size='four-fifths'>
+            <Content>
+              <h6>
+                Date: <Link to={`/session/${id}`}>{date}</Link>
+              </h6>
+              <p>Player: {username}</p>
+            </Content>
+          </Column>
+          {canDelete && (
+            <Column>
+              {(deleteTarget === id
+                ? <DeleteConfirmation />
+                : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>)}
+            </Column>
+          )}
+        </Column.Group>
+      </Container>
     )
   })
 
@@ -296,25 +311,17 @@ export const Session = () => {
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
       <Container className='transition'>
-        <Content>
+        <Content className='frost'>
           <h5>Current session:</h5>
           {songs.length
             ? <SessionQueue songs={songs} />
             : <p>Session is empty!</p>}
         </Content>
-        {entriesList
+        {sessionsList
           ? (
-            <Table hoverable>
-              <Table.Head>
-                <Table.Row>
-                  <Table.Heading>Date</Table.Heading>
-                  <Table.Heading>Player</Table.Heading>
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                {entriesList}
-              </Table.Body>
-            </Table>
+            <Container className='frost'>
+              {sessionsList}
+            </Container>
           )
           : null}
       </Container>

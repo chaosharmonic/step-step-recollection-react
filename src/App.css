@@ -12,11 +12,8 @@
   display: none;
 }
 
-.container {
-  max-width: 900px;
-}
 
-.container, .loader, table {
+.container, .loader, section, table {
   margin: 0 auto;
 }
 
@@ -25,12 +22,38 @@
   text-transform: capitalize;
 }
 
+.container {
+  max-width: 900px;
+}
+
 #login {
   max-width: 350px;
 }
 
+section {
+  width: 75%;
+}
+
+.frost {
+  background: rgba(55, 55, 55, 0.2);
+  padding: 3%;
+  border-radius: 10px;
+}
+
 .menuOptions {
   display: flex;
+  max-width: 700px;
+}
+
+.listEntry {
+  margin: 20px auto;
+  border-radius: 10px;
+}
+.listEntry :hover {
+  background: rgba(100, 100, 100, 0.2);
+}
+.listEntry div :hover {
+  background: none;
 }
 
 .menu {
@@ -50,11 +73,6 @@
 
 .pagination-previous, .pagination-next {
   max-width: 40px;
-}
-
-.content {
-  width: 70%;
-  margin: 0 auto;
 }
 
 .is-small {
