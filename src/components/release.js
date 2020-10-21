@@ -77,22 +77,22 @@ export const Release = () => {
 
     return (
       <Container className='listEntry' key={id}>
-        <Content>
-          <Column.Group>
-            <Column size='four-fifths'>
+        <Column.Group>
+          <Column size='four-fifths'>
+            <Content>
               <h6>
                 <Link to={`/${path}/${id}`}>{title}</Link>
               </h6>
+            </Content>
+          </Column>
+          {isAdmin && (
+            <Column>
+              {deleteTarget === id
+                ? <DeleteConfirmation />
+                : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>}
             </Column>
-            {isAdmin && (
-              <Column>
-                {deleteTarget === id
-                  ? <DeleteConfirmation />
-                  : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>}
-              </Column>
-            )}
-          </Column.Group>
-        </Content>
+          )}
+        </Column.Group>
       </Container>
     )
   })
@@ -248,7 +248,7 @@ export const ReleaseDetail = () => {
                 song={song}
                 setOuterTarget={setSessionTarget}
                 handleSubmit={addToCurrentSession}
-              />
+                />
               : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
           </Table.Cell>
         )}

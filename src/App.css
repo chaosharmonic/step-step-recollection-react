@@ -31,6 +31,7 @@
 }
 
 section {
+  min-width: 400px;
   width: 75%;
 }
 
@@ -47,6 +48,7 @@ section {
 
 .listEntry {
   margin: 20px auto !important;
+  max-width: 95%;
   border-radius: 10px;
 }
 .listEntry :hover {
