@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Content, Column, Button, Table, Container, Loader, Content } from 'rbx'
+import { Title, Content, Column, Button, Table, Container, Loader } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -248,7 +248,7 @@ export const ReleaseDetail = () => {
                 song={song}
                 setOuterTarget={setSessionTarget}
                 handleSubmit={addToCurrentSession}
-                />
+              />
               : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
           </Table.Cell>
         )}
