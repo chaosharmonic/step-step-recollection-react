@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Content, Column, Button, Table, Container, Loader } from 'rbx'
+import { Title, Content, Column, Button, Container, Loader } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -203,7 +203,7 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 }
 
 export const ReleaseDetail = () => {
-  const { detail, setDetail, deleteEntry } = useContext(context)
+  const { detail: { release, songs }, setDetail, deleteEntry } = useContext(context)
   const { addToCurrentSession } = useContext(SessionContext)
   const { user: { username, isAdmin } } = useContext(AuthContext)
   const history = useHistory()
@@ -229,42 +229,57 @@ export const ReleaseDetail = () => {
     getDetail()
   }, [routeId])
 
-  const songsMap = detail.songs.map(song => {
+  const songsMap = songs.map(song => {
     const id = song._id
     const { title } = song
 
     const setSessionPrompt = () => setSessionTarget(id)
 
     return (
-      <Table.Row key={id}>
-        <Table.Cell>
-          <Link to={`/song/${id}`}>{title}</Link>
-        </Table.Cell>
-
-        {username && (
-          <Table.Cell>
-            {sessionTarget === id
-              ? <SessionQueueForm
-                song={song}
-                setOuterTarget={setSessionTarget}
-                handleSubmit={addToCurrentSession}
-                />
-              : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
-          </Table.Cell>
-        )}
-      </Table.Row>
+      <Container className='listEntry' key={id}>
+        {/*
+          TODO: figure out alternate way to preserve spacing
+                  wrap in another div to force proper highlight?
+                  note that dom diffing is probably what's causing animation bug
+        */}
+        <Column.Group>
+          <Column>
+            <Content size='small'>
+              <h5>
+                <Link to={`/song/${id}`}>{title}</Link>
+              </h5>
+            </Content>
+            {username && (
+              <>
+                {sessionTarget === id
+                  ? (
+                    <SessionQueueForm
+                      song={song}
+                      setOuterTarget={setSessionTarget}
+                      handleSubmit={addToCurrentSession}
+                    />
+                  )
+                  : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+              </>
+            )}
+          </Column>
+        </Column.Group>
+      </Container>
     )
   })
 
   const PageContent = () => {
-    const { release: { title, releaseDate, scale, numPanels, releaseType } } = detail
+    const { title, releaseDate, scale, numPanels, releaseType } = release
     return (
       <>
-        <h1>Title: {title}</h1>
-        {releaseDate && <h1>Release Date: {format(new Date(releaseDate), 'MM/dd/yyyy')}</h1>}
-        {scale && <h1>Scale: {scale}</h1>}
-        <h1>Number of Panels: {numPanels}</h1>
-        {releaseType && <h1>Release Type: {releaseType}</h1>}
+        <p>Title: {title}</p>
+        {releaseDate &&
+          <p>Release Date: {format(new Date(releaseDate), 'MM/dd/yyyy')}</p>}
+        {scale &&
+          <p>Scale: {scale}</p>}
+        <p>Number of Panels: {numPanels}</p>
+        {releaseType &&
+          <p>Release Type: {releaseType}</p>}
       </>
     )
   }
@@ -273,29 +288,30 @@ export const ReleaseDetail = () => {
   const editText = updating ? 'Cancel Edit' : 'Edit'
 
   return loading ? <Loader /> : (
-    <>
-      {isAdmin &&
-        <Button onClick={handleSelectEdit}>{editText}</Button>}
-      <Button onClick={handleBack}>Go back!!</Button>
-      {updating
-        ? (
-          <ReleaseForm
-            targetId={id}
-            setSubmitting={setUpdating}
-          />
-        )
-        : <PageContent />}
-      <h1>Songs:</h1>
-      <Table hoverable>
-        <Table.Head>
-          <Table.Row>
-            <Table.Heading>Title</Table.Heading>
-          </Table.Row>
-        </Table.Head>
-        <Table.Body>
-          {songsMap}
-        </Table.Body>
-      </Table>
-    </>
+    <Content size='small'>
+      <Title>{path} Detail</Title>
+      <Container className='frost'>
+        <Column.Group>
+          <Column size='four-fifths'>
+            <h4>Info:</h4>
+            {updating
+              ? (
+                <ReleaseForm
+                  targetId={routeId}
+                  setSubmitting={setUpdating}
+                />
+              )
+              : <PageContent />}
+          </Column>
+          <Column>
+            {isAdmin &&
+              <Button onClick={handleSelectEdit}>{editText}</Button>}
+            <Button onClick={handleBack}>Go back!!</Button>
+          </Column>
+        </Column.Group>
+        <h5>Songs:</h5>
+        {songsMap}
+      </Container>
+    </Content>
   )
 }
