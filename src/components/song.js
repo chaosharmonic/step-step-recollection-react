@@ -384,14 +384,14 @@ export const SongDetail = () => {
     const { title, artist, release, length, titletranslit, artisttranslit } = detail
     if (!(title && artist && release)) return null
     return (
-      <>
-        <h1>Title: {title}</h1>
-        {titletranslit && <h1>Title (Romanized): {titletranslit}</h1>}
-        <h1>Artist: {artist}</h1>
-        {artisttranslit && <h1>Artist (Romanized): {artisttranslit}</h1>}
-        {length > 0 && <h1>Length: {length}</h1>}
-        <h1>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></h1>
-      </>
+      <Content>
+        <h4>{title}</h4>
+        {titletranslit && <p>Title (Romanized): {titletranslit}</p>}
+        <p>Artist: {artist}</p>
+        {artisttranslit && <p>Artist (Romanized): {artisttranslit}</p>}
+        {length > 0 && <p>Length: {length}</p>}
+        <p>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></p>
+      </Content>
     )
   }
 
@@ -399,18 +399,19 @@ export const SongDetail = () => {
   const editText = updating ? 'Cancel Edit' : 'Edit'
 
   return loading ? <Loader /> : (
-    <>
-      <h1>{path} detail!</h1>
+    <Container className='transition frost'>
+      {updating
+        ? (
+          <SongForm
+            targetId={id}
+            setSubmitting={setUpdating}
+          />
+        )
+        : <PageContent />}
       {isAdmin &&
         <Button onClick={handleToggleEdit}>{editText}</Button>}
       <Button onClick={handleBack}>Go back!!</Button>
-      {updating
-        ? <SongForm
-          targetId={id}
-          setSubmitting={setUpdating}
-        />
-        : <PageContent />}
-    </>
+    </Container>
   )
 }
 
