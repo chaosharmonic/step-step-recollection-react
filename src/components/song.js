@@ -350,11 +350,13 @@ export const SongDetail = () => {
   const { user: { isAdmin } } = useContext(AuthContext)
   const {
     title,
+    titletranslit,
     artist,
+    artisttranslit,
     release,
-    length,
-    bpmDisplay,
-    charts
+    length
+    // bpmDisplay,
+    // charts
   } = detail
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
@@ -381,17 +383,16 @@ export const SongDetail = () => {
   }, [id])
 
   const PageContent = () => {
-    const { title, artist, release, length, titletranslit, artisttranslit } = detail
     if (!(title && artist && release)) return null
     return (
-      <Content>
+      <>
         <h4>{title}</h4>
         {titletranslit && <p>Title (Romanized): {titletranslit}</p>}
         <p>Artist: {artist}</p>
         {artisttranslit && <p>Artist (Romanized): {artisttranslit}</p>}
         {length > 0 && <p>Length: {length}</p>}
         <p>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></p>
-      </Content>
+      </>
     )
   }
 
@@ -399,19 +400,22 @@ export const SongDetail = () => {
   const editText = updating ? 'Cancel Edit' : 'Edit'
 
   return loading ? <Loader /> : (
-    <Container className='transition frost'>
-      {updating
-        ? (
-          <SongForm
-            targetId={id}
-            setSubmitting={setUpdating}
-          />
-        )
-        : <PageContent />}
-      {isAdmin &&
-        <Button onClick={handleToggleEdit}>{editText}</Button>}
-      <Button onClick={handleBack}>Go back!!</Button>
-    </Container>
+    <Content size='small'>
+      <Title>{path} detail</Title>
+      <Container className='transition frost'>
+        {updating
+          ? (
+            <SongForm
+              targetId={id}
+              setSubmitting={setUpdating}
+            />
+          )
+          : <PageContent />}
+        {isAdmin &&
+          <Button onClick={handleToggleEdit}>{editText}</Button>}
+        <Button onClick={handleBack}>Go back!!</Button>
+      </Container>
+    </Content>
   )
 }
 
