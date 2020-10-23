@@ -387,7 +387,7 @@ export const SessionDetail = () => {
   const handleBack = () => history.goBack()
 
   return (
-    <Content>
+    <Content size='small'>
       <Title>{path} Detail</Title>
       <Container className='transition frost'>
         <Column.Group>
