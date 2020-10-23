@@ -7,6 +7,9 @@
 .transition {
   animation: var(--fade);
 }
+.transition > * {
+  animation: none;
+}
 
 .isHidden {
   display: none;

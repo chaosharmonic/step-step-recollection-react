@@ -140,7 +140,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
                       <p>{style}, {difficulty}</p>
                       {/* <p>Level: placeholder</p>
                         TODO: API and form updates */}
-                      <p>Passed: {passed ? 'Yes' : 'No'}</p>
+                      <p>Record: {passed ? 'Cleared' : 'Failed'}</p>
                     </>
                   )
                   : (
@@ -289,9 +289,9 @@ export const Session = () => {
         <Column.Group>
           <Column size='four-fifths'>
             <Content>
-              <h6>
-                Date: <Link to={`/session/${id}`}>{date}</Link>
-              </h6>
+              <h4>
+                <Link to={`/session/${id}`}>{date}</Link>
+              </h4>
               <p>Player: {username}</p>
             </Content>
           </Column>
@@ -353,22 +353,22 @@ export const SessionDetail = () => {
     getDetail()
   }, [id])
 
-  const entriesList = songs.map(({ id, title, release, difficulty, record: { passed } }) => {
+  const songRecords = songs.map(({ id, title, numPads, difficulty, record: { passed } }) => {
+    const style = numPads === 2 ? 'Double' : 'Single'
     return (
-      <Table.Row key={id}>
-        <Table.Cell>
-          <Link to={`/song/${id}`}>{title}</Link>
-        </Table.Cell>
-        {/* <Table.Cell>
-          <Link to={`/release/${release._id}`}>{release.title}</Link>
-        </Table.Cell> */}
-        <Table.Cell>
-          {difficulty}
-        </Table.Cell>
-        <Table.Cell>
-          {passed ? 'Pass' : 'Fail'}
-        </Table.Cell>
-      </Table.Row>
+      <Container className='listEntry' key={id}>
+        <Column.Group>
+          <Column>
+            <Content size='small'>
+              <h5>
+                <Link to={`/song/${id}`}>{title}</Link>
+              </h5>
+              <p>{style}, {difficulty}</p>
+              <p>Record: {passed ? 'Cleared' : 'Failed'}</p>
+            </Content>
+          </Column>
+        </Column.Group>
+      </Container>
     )
   })
 
@@ -376,25 +376,10 @@ export const SessionDetail = () => {
   const date = sessionDate && format(new Date(sessionDate), 'MM/dd/yyyy')
 
   const PageContent = (
-    <>
-      <h1>Player: {player}</h1>
-      <h1>Date: {date}</h1>
-      <h1>Total songs: {songs.length} </h1>
-      <h1>Total passed: {passed.length} </h1>
-      <Container className='transition'>
-        <Table hoverable>
-          <Table.Head>
-            <Table.Row>
-              <Table.Heading>Song</Table.Heading>
-              {/* <Table.Heading>Release</Table.Heading> */}
-              <Table.Heading>Difficulty</Table.Heading>
-              <Table.Heading>Result</Table.Heading>
-            </Table.Row>
-          </Table.Head>
-          {entriesList}
-        </Table>
-      </Container>
-    </>
+    <Container className='transition'>
+      <h5>Songs:</h5>
+      {songRecords}
+    </Container>
   )
 
   const editText = updating ? 'Cancel Edit' : 'Edit'
@@ -402,13 +387,26 @@ export const SessionDetail = () => {
   const handleBack = () => history.goBack()
 
   return (
-    <>
-      <h1>{path} detail!</h1>
-      {updating
-        ? <SessionQueue targetId={id} updateOuterState={handleToggleEdit} />
-        : PageContent}
-      {username && <Button onClick={handleToggleEdit}>{editText}</Button>}
-      <Button onClick={handleBack}>Go back!!</Button>
-    </>
+    <Content>
+      <Title>{path} Detail</Title>
+      <Container className='transition frost'>
+        <Column.Group>
+          <Column size='four-fifths'>
+            <h5>Info:</h5>
+            <p>Date: {date}</p>
+            <p>Player: {player}</p>
+            <p>Total songs: {songs.length} </p>
+            <p>Total passed: {passed.length} </p>
+          </Column>
+          <Column>
+            {username && <Button size='small' onClick={handleToggleEdit}>{editText}</Button>}
+            <Button size='small' onClick={handleBack}>Go back!!</Button>
+          </Column>
+        </Column.Group>
+        {updating
+          ? <SessionQueue targetId={id} updateOuterState={handleToggleEdit} />
+          : PageContent}
+      </Container>
+    </Content>
   )
 }
