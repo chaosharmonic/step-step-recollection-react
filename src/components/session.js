@@ -36,23 +36,13 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
   const [editTarget, setEditTarget] = useState(null)
   const clearEditTarget = () => setEditTarget(null)
 
-  const date = format(new Date(sessionDate), 'MM/dd/yyyy')
-  const [formState, setFormState] = useState({ sessionDate: date })
+  const formattedDate = format(new Date(sessionDate), 'MM/dd/yyyy')
+  const [formState, setFormState] = useState({ sessionDate: formattedDate })
 
   const [entries, setEntries] = useState(songs)
   useEffect(() => setEntries(songs), [songs])
 
-  const handleCreateRecord = async () => {
-    const body = {
-      payload: { player: id, songs: [...entries], sessionDate }
-    }
-    const response = await createRecord(body)
-    response._id
-      ? addEntry(response)
-      : console.log(response)
-  }
-
-  const handleUpdateRecord = async (id) => {
+  const getFormDate = () => {
     const date = parse(formState.sessionDate, 'MM/dd/yyyy', new Date())
 
     if (!isValid(date)) {
@@ -60,10 +50,17 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       return null
     }
 
-    const body = {
-      payload: { songs: [...entries], sessionDate: date }
-    }
-    console.log(body)
+    return date
+  }
+
+  const handleCreateRecord = async (body) => {
+    const response = await createRecord(body)
+    response._id
+      ? addEntry(response)
+      : console.log(response)
+  }
+
+  const handleUpdateRecord = async (id, body) => {
     const response = await updateRecord(id, body)
     if (response._id) {
       updateEntry(response)
@@ -95,9 +92,24 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
     handleUpdateQueue(next)
   }
 
-  const handleSubmitSession = () => targetId
-    ? handleUpdateRecord(targetId)
-    : handleCreateRecord()
+  const handleSubmitSession = () => {
+    const formDate = getFormDate()
+    if (!formDate) return null
+
+    const player = targetId ? {} : { player: id }
+
+    const body = {
+      payload: {
+        songs: [...entries],
+        sessionDate: formDate,
+        ...player
+      }
+    }
+
+    targetId
+      ? handleUpdateRecord(targetId, body)
+      : handleCreateRecord(body)
+  }
 
   const setFormValue = (event) => {
     const { name, value } = event.target
