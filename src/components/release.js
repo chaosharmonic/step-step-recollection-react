@@ -100,7 +100,7 @@ export const Release = () => {
   return (
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
-      {loading
+      {loading || !releasesList.length
         ? <Loader />
         : (
           <Container className='transition frost'>
