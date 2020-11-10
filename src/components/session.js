@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
-import { Column, Container, Content, Title, Button, Table } from 'rbx'
+import { Column, Container, Content, Title, Button } from 'rbx'
 import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io'
 import { parse, format, isValid } from 'date-fns'
 import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
 import { moveIndex } from '../utils/moveIndex'
+import { ListEntry } from './scaffold/listEntry'
 import { generateFormField } from './scaffold/formField'
 
 const context = SessionContext
@@ -139,7 +140,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       const style = numPads === 2 ? 'Double' : 'Single'
 
       return (
-        <Container className='listEntry' key={id}>
+        <ListEntry key={id}>
           <Column.Group>
             <Column size='four-fifths'>
               <Content size='small'>
@@ -172,9 +173,8 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
                 {!isEnd && <Button size='small' onClick={handleMoveDown}><IoIosArrowDown /></Button>}
               </Column>
             )}
-
           </Column.Group>
-        </Container>
+        </ListEntry>
       )
     })
 
@@ -297,7 +297,7 @@ export const Session = () => {
     const canDelete = playerId === player.id || isAdmin
 
     return (
-      <Container className='listEntry' key={id}>
+      <ListEntry key={id}>
         <Column.Group>
           <Column size='four-fifths'>
             <Content>
@@ -315,7 +315,7 @@ export const Session = () => {
             </Column>
           )}
         </Column.Group>
-      </Container>
+      </ListEntry>
     )
   })
 
@@ -368,7 +368,7 @@ export const SessionDetail = () => {
   const songRecords = songs.map(({ id, title, numPads, difficulty, record: { passed } }) => {
     const style = numPads === 2 ? 'Double' : 'Single'
     return (
-      <Container className='listEntry' key={id}>
+      <ListEntry key={id}>
         <Column.Group>
           <Column>
             <Content size='small'>
@@ -380,7 +380,7 @@ export const SessionDetail = () => {
             </Content>
           </Column>
         </Column.Group>
-      </Container>
+      </ListEntry>
     )
   })
 

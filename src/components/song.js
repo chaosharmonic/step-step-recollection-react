@@ -7,6 +7,7 @@ import { SongContext } from '../contexts/song'
 import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
+import { ListEntry } from './scaffold/listEntry'
 import { generateFormField } from './scaffold/formField'
 import { Paginate } from './scaffold/paginate'
 
@@ -146,7 +147,7 @@ export const Song = () => {
     )
 
     return (
-      <Container className='listEntry' key={id}>
+      <ListEntry key={id}>
         <Column.Group>
           <Column size='four-fifths'>
             <Content size='small'>
@@ -154,22 +155,20 @@ export const Song = () => {
                 <Link to={`/${path}/${id}`}>{title}</Link>
               </h5>
               <h6>
-                  Release: <Link to={`/release/${release._id}`}>{release.title}</Link>
+                Release: <Link to={`/release/${release._id}`}>{release.title}</Link>
               </h6>
             </Content>
             {menuTarget === id && (
               <Container className='menu'>
-                <>
-                  {sessionTarget === id
-                    ? (
-                      <SessionQueueForm
-                        song={song}
-                        setOuterTarget={setSessionTarget}
-                        handleSubmit={addToCurrentSession}
-                      />
-                    )
-                    : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
-                </>
+                {sessionTarget === id
+                  ? (
+                    <SessionQueueForm
+                      song={song}
+                      setOuterTarget={setSessionTarget}
+                      handleSubmit={addToCurrentSession}
+                    />
+                  )
+                  : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
                 {isAdmin && (
                   <Container>
                     {deleteTarget === id
@@ -186,7 +185,7 @@ export const Song = () => {
             </Column>
           )}
         </Column.Group>
-      </Container>
+      </ListEntry>
     )
   }
 

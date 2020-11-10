@@ -7,6 +7,7 @@ import { ReleaseContext } from '../contexts/release'
 import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
+import { ListEntry } from './scaffold/listEntry'
 import { generateFormField } from './scaffold/formField'
 
 const [
@@ -76,7 +77,7 @@ export const Release = () => {
     )
 
     return (
-      <Container className='listEntry' key={id}>
+      <ListEntry key={id}>
         <Column.Group>
           <Column size='four-fifths'>
             <Content>
@@ -93,7 +94,7 @@ export const Release = () => {
             </Column>
           )}
         </Column.Group>
-      </Container>
+      </ListEntry>
     )
   })
 
@@ -236,12 +237,7 @@ export const ReleaseDetail = () => {
     const setSessionPrompt = () => setSessionTarget(id)
 
     return (
-      <Container className='listEntry' key={id}>
-        {/*
-          TODO: figure out alternate way to preserve spacing
-                  wrap in another div to force proper highlight?
-                  note that dom diffing is probably what's causing animation bug
-        */}
+      <ListEntry key={id}>
         <Column.Group>
           <Column>
             <Content size='small'>
@@ -264,7 +260,7 @@ export const ReleaseDetail = () => {
             )}
           </Column>
         </Column.Group>
-      </Container>
+      </ListEntry>
     )
   })
 
