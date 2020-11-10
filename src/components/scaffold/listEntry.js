@@ -3,7 +3,7 @@ import { Container } from 'rbx'
 
 export const ListEntry = ({ children }) => (
   <Container className='listEntry'>
-    <Container className='listContainer'>
+    <Container>
       {children}
     </Container>
   </Container>
