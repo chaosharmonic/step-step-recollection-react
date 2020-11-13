@@ -104,7 +104,7 @@ export const Release = () => {
       {loading || !releasesList.length
         ? <Loader />
         : (
-          <Container className='transition frost'>
+          <Container className='transition'>
             {releasesList}
           </Container>
         )}
@@ -267,7 +267,7 @@ export const ReleaseDetail = () => {
   const PageContent = () => {
     const { title, releaseDate, scale, numPanels, releaseType } = release
     return (
-      <>
+      <Content className='pageContent'>
         <p>Title: {title}</p>
         {releaseDate &&
           <p>Release Date: {format(new Date(releaseDate), 'MM/dd/yyyy')}</p>}
@@ -276,7 +276,7 @@ export const ReleaseDetail = () => {
         <p>Number of Panels: {numPanels}</p>
         {releaseType &&
           <p>Release Type: {releaseType}</p>}
-      </>
+      </Content>
     )
   }
 
@@ -286,28 +286,26 @@ export const ReleaseDetail = () => {
   return loading ? <Loader /> : (
     <Content size='small'>
       <Title>{path} Detail</Title>
-      <Container className='frost'>
-        <Column.Group>
-          <Column size='four-fifths'>
-            <h4>Info:</h4>
-            {updating
-              ? (
-                <ReleaseForm
-                  targetId={routeId}
-                  setSubmitting={setUpdating}
-                />
-              )
-              : <PageContent />}
-          </Column>
-          <Column>
-            {isAdmin &&
-              <Button onClick={handleSelectEdit}>{editText}</Button>}
-            <Button onClick={handleBack}>Go back!!</Button>
-          </Column>
-        </Column.Group>
-        <h5>Songs:</h5>
-        {songsMap}
-      </Container>
+      <Column.Group>
+        <Column size='four-fifths'>
+          <h4>Info:</h4>
+          {updating
+            ? (
+              <ReleaseForm
+                targetId={routeId}
+                setSubmitting={setUpdating}
+              />
+            )
+            : <PageContent />}
+        </Column>
+        <Column>
+          {isAdmin &&
+            <Button onClick={handleSelectEdit}>{editText}</Button>}
+          <Button onClick={handleBack}>Go back!!</Button>
+        </Column>
+      </Column.Group>
+      <h5>Songs:</h5>
+      {songsMap}
     </Content>
   )
 }

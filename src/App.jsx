@@ -48,7 +48,7 @@ function App () {
       <AuthProvider>
         <Navigation />
         <Section>
-          <Container>
+          <Container id='main'>
             <Switch>
               <Route exact path='/' component={Home} />
               <Route path='/login' component={LoginForm} />

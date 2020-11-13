@@ -322,21 +322,20 @@ export const Session = () => {
   return (
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
-      <Container className='transition'>
-        <Content className='frost'>
-          <h5>Current session:</h5>
-          {songs.length
-            ? <SessionQueue songs={songs} />
-            : <p>Session is empty!</p>}
-        </Content>
+      <Content className='transition'>
+        <h5>Current session:</h5>
+        {songs.length
+          ? <SessionQueue songs={songs} />
+          : <p className='pageContent'>Session is empty!</p>}
         {sessionsList
           ? (
-            <Container className='frost'>
+            <>
+              <h5>Saved sessions:</h5>
               {sessionsList}
-            </Container>
+            </>
           )
           : null}
-      </Container>
+      </Content>
     </div>
   )
 }
@@ -401,7 +400,7 @@ export const SessionDetail = () => {
   return (
     <Content size='small'>
       <Title>{path} Detail</Title>
-      <Container className='transition frost'>
+      <Container className='transition'>
         <Column.Group>
           <Column size='four-fifths'>
             <h5>Info:</h5>

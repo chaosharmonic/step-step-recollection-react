@@ -207,7 +207,7 @@ export const Song = () => {
       {loading || !songsList.length
         ? <Loader />
         : (
-          <Container className='transition frost'>
+          <Container className='transition'>
             {songsList}
           </Container>
         )}
@@ -386,11 +386,13 @@ export const SongDetail = () => {
     return (
       <>
         <h4>{title}</h4>
-        {titletranslit && <p>Title (Romanized): {titletranslit}</p>}
-        <p>Artist: {artist}</p>
-        {artisttranslit && <p>Artist (Romanized): {artisttranslit}</p>}
-        {length > 0 && <p>Length: {length}</p>}
-        <p>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></p>
+        <Container className='pageContent'>
+          {titletranslit && <p>Title (Romanized): {titletranslit}</p>}
+          <p>Artist: {artist}</p>
+          {artisttranslit && <p>Artist (Romanized): {artisttranslit}</p>}
+          {length > 0 && <p>Length: {length}</p>}
+          <p>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></p>
+        </Container>
       </>
     )
   }
@@ -401,7 +403,7 @@ export const SongDetail = () => {
   return loading ? <Loader /> : (
     <Content size='small'>
       <Title>{path} detail</Title>
-      <Container className='transition frost'>
+      <Container className='transition'>
         {updating
           ? (
             <SongForm
