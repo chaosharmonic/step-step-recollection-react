@@ -40,13 +40,15 @@ export const generateFormField = (field, label, state, handleSetFormValue, optio
       }
       )
     return (
-      <Select
-        onChange={handleSetFormValue}
-        value={value}
-        name={field}
-      >
-        {selectOptions}
-      </Select>
+      <Select.Container>
+        <Select
+          onChange={handleSetFormValue}
+          value={value}
+          name={field}
+        >
+          {selectOptions}
+        </Select>
+      </Select.Container>
     )
   }
 

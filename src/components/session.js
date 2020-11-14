@@ -181,8 +181,10 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
   return (
     <Container>
       {sessionItems}
-      {formField('sessionDate', 'Session Date')}
-      <Button onClick={handleSubmitSession}>Save session!</Button>
+      <Container id='sessionSubmit'>
+        {formField('sessionDate', 'Session Date')}
+        <Button onClick={handleSubmitSession}>Save session!</Button>
+      </Container>
     </Container>
   )
 }
