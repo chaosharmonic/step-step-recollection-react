@@ -71,7 +71,6 @@ export const Song = () => {
   const { user: { username, isAdmin } } = useContext(AuthContext)
   const [creating, setCreating] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [fetchTarget, setFetchTarget] = useState(1)
 
   const [menuTarget, setMenuTarget] = useState(initialTargetId)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
@@ -90,13 +89,6 @@ export const Song = () => {
     getRecords()
   }, [])
 
-  useEffect(() => {
-    async function renderNextPage () {
-      await getPage(fetchTarget)
-    }
-    renderNextPage()
-  }, [fetchTarget])
-
   useEffect(() => setLoading(false), [entries])
 
   const getPage = async (page) => {
@@ -107,7 +99,7 @@ export const Song = () => {
   }
 
   const debouncePageFetch = useRef(
-    debounce((page) => setFetchTarget(page), 1000)
+    debounce(async (page) => await getPage(page), 1000)
   ).current
 
   const handleChangePage = (page) => {
