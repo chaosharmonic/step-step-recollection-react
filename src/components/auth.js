@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Button } from 'rbx'
+import { BulmaButton } from './scaffold/styled'
 import { jwt_decode } from 'jwt-decode-es'
 import Cookie from 'js-cookie'
 import { AuthContext } from '../contexts/auth'
@@ -54,7 +54,7 @@ export const LoginForm = () => {
     <form id='login' onSubmit={submitForm}>
       {formField('username', 'Username')}
       {formField('password', 'Password')}
-      <Button type='submit'>Login!</Button>
+      <BulmaButton type='submit'>Login!</BulmaButton>
       {demoUsername && demoPw && <DemoCredentials />}
     </form>
   )

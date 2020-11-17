@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Title, Content, Column, Button, Container, Loader } from 'rbx'
+import { Title, Content, Container, Column, Loader } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
 import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
@@ -7,6 +7,7 @@ import { ReleaseContext } from '../contexts/release'
 import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
+import { BulmaButton } from './scaffold/styled'
 import { ListEntry } from './scaffold/listEntry'
 import { generateFormField } from './scaffold/formField'
 
@@ -71,8 +72,8 @@ export const Release = () => {
 
     const DeleteConfirmation = () => (
       <>
-        <Button size='small' onClick={cancelDelete}>Cancel Delete</Button>
-        <Button size='small' onClick={confirmDelete}>Confirm Delete</Button>
+        <BulmaButton onClick={cancelDelete}>Cancel Delete</BulmaButton>
+        <BulmaButton onClick={confirmDelete}>Confirm Delete</BulmaButton>
       </>
     )
 
@@ -90,7 +91,7 @@ export const Release = () => {
             <Column>
               {deleteTarget === id
                 ? <DeleteConfirmation />
-                : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>}
+                : <BulmaButton onClick={setDeleteConfirmation}>Delete</BulmaButton>}
             </Column>
           )}
         </Column.Group>
@@ -108,7 +109,7 @@ export const Release = () => {
             {releasesList}
           </Container>
         )}
-      {isAdmin && <Button onClick={handleSetCreating}>Add new</Button>}
+      {isAdmin && <BulmaButton onClick={handleSetCreating}>Add new</BulmaButton>}
       {creating && <ReleaseForm setSubmitting={setCreating} />}
     </div>
   )
@@ -195,10 +196,10 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
       {formField('numPanels', 'Number of panels')}
       {formField('releaseDate', 'Release date (MM/DD/YYYY)')}
       {formField('releaseType', 'Release type', ['Arcade', 'Console', 'Custom'])}
-      <Button onClick={targetId ? submitForm : handleCreateRecord}>
+      <BulmaButton onClick={targetId ? submitForm : handleCreateRecord}>
         {submitButtonText}
-      </Button>
-      <Button onClick={cancelSubmitForm}>Cancel</Button>
+      </BulmaButton>
+      <BulmaButton onClick={cancelSubmitForm}>Cancel</BulmaButton>
     </>
   )
 }
@@ -255,7 +256,7 @@ export const ReleaseDetail = () => {
                       handleSubmit={addToCurrentSession}
                     />
                   )
-                  : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+                  : <BulmaButton onClick={setSessionPrompt}>Add to session</BulmaButton>}
               </>
             )}
           </Column>
@@ -300,8 +301,8 @@ export const ReleaseDetail = () => {
         </Column>
         <Column>
           {isAdmin &&
-            <Button onClick={handleSelectEdit}>{editText}</Button>}
-          <Button onClick={handleBack}>Go back!!</Button>
+            <BulmaButton onClick={handleSelectEdit}>{editText}</BulmaButton>}
+          <BulmaButton onClick={handleBack}>Go back!!</BulmaButton>
         </Column>
       </Column.Group>
       <h5>Songs:</h5>

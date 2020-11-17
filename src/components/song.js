@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react'
-import { Column, Container, Title, Button, Content, Loader } from 'rbx'
+import { Column, Container, Title, Content, Loader } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { debounce } from 'lodash-es'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
@@ -8,6 +8,7 @@ import { SessionQueueForm } from './session'
 import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
 import { ListEntry } from './scaffold/listEntry'
+import { BulmaButton } from './scaffold/styled'
 import { generateFormField } from './scaffold/formField'
 import { Paginate } from './scaffold/paginate'
 
@@ -70,7 +71,7 @@ export const Song = () => {
   const { entries, pageCount, setEntries, setPages, deleteEntry } = useContext(context)
   const { user: { username, isAdmin } } = useContext(AuthContext)
   const [creating, setCreating] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1) // selectedPage?
 
   const [menuTarget, setMenuTarget] = useState(initialTargetId)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
@@ -129,12 +130,12 @@ export const Song = () => {
     const toggleSongMenu = () => menuTarget === id
       ? setMenuTarget(initialTargetId)
       : setMenuTarget(id)
-    const menuToggleText = menuTarget === id ? 'Collapse' : 'Expand'
+    const menuToggleText = menuTarget === id ? 'Less' : 'More'
 
     const DeleteConfirmation = () => (
       <>
-        <Button size='small' onClick={cancelDelete}>Cancel Delete</Button>
-        <Button size='small' onClick={submitDelete}>Confirm Delete</Button>
+        <BulmaButton onClick={cancelDelete}>Cancel Delete</BulmaButton>
+        <BulmaButton onClick={submitDelete}>Confirm Delete</BulmaButton>
       </>
     )
 
@@ -160,12 +161,12 @@ export const Song = () => {
                       handleSubmit={addToCurrentSession}
                     />
                   )
-                  : <Button size='small' onClick={setSessionPrompt}>Add to session</Button>}
+                  : <BulmaButton onClick={setSessionPrompt}>Add to session</BulmaButton>}
                 {isAdmin && (
                   <Container>
                     {deleteTarget === id
                       ? <DeleteConfirmation />
-                      : <Button size='small' onClick={setDeletePrompt}>Delete</Button>}
+                      : <BulmaButton onClick={setDeletePrompt}>Delete</BulmaButton>}
                   </Container>
                 )}
               </Container>
@@ -173,7 +174,9 @@ export const Song = () => {
           </Column>
           {username && (
             <Column>
-              <Button size='small' onClick={toggleSongMenu}>{menuToggleText}</Button>
+              <BulmaButton onClick={toggleSongMenu}>
+                {menuToggleText}
+              </BulmaButton>
             </Column>
           )}
         </Column.Group>
@@ -189,7 +192,7 @@ export const Song = () => {
       {creating
         ? <SongForm setSubmitting={setCreating} />
         : isAdmin &&
-          <Button onClick={handleSetCreating}>Add new</Button>}
+          <BulmaButton onClick={handleSetCreating}>Add new</BulmaButton>}
       <Paginate
         getPage={handleChangePage}
         entries={entries}
@@ -328,10 +331,10 @@ const SongForm = ({ targetId, setSubmitting }) => {
           {formField('chart_double_challenge', 'Double: Challenge')}
         </Column>
       </Column.Group>
-      <Button onClick={targetId ? submitForm : handleCreateRecord}>
+      <BulmaButton onClick={targetId ? submitForm : handleCreateRecord}>
         {submitButtonText}
-      </Button>
-      <Button onClick={cancelSubmitForm}>Cancel</Button>
+      </BulmaButton>
+      <BulmaButton onClick={cancelSubmitForm}>Cancel</BulmaButton>
     </>
   )
 }
@@ -405,8 +408,8 @@ export const SongDetail = () => {
           )
           : <PageContent />}
         {isAdmin &&
-          <Button onClick={handleToggleEdit}>{editText}</Button>}
-        <Button onClick={handleBack}>Go back!!</Button>
+          <BulmaButton onClick={handleToggleEdit}>{editText}</BulmaButton>}
+        <BulmaButton onClick={handleBack}>Go back!!</BulmaButton>
       </Container>
     </Content>
   )

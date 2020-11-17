@@ -8,6 +8,7 @@ import { SessionContext } from '../contexts/session'
 import { AuthContext } from '../contexts/auth'
 import { moveIndex } from '../utils/moveIndex'
 import { ListEntry } from './scaffold/listEntry'
+import { BulmaButton } from './scaffold/styled'
 import { generateFormField } from './scaffold/formField'
 
 const context = SessionContext
@@ -167,10 +168,10 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
             </Column>
             {!editing && (
               <Column>
-                <Button size='small' onClick={handleRemoveFromSession}>Clear</Button>
-                <Button size='small' onClick={handleSelectEdit}>Edit</Button>
-                {!isBeginning && <Button size='small' onClick={handleMoveUp}><IoIosArrowUp /></Button>}
-                {!isEnd && <Button size='small' onClick={handleMoveDown}><IoIosArrowDown /></Button>}
+                <BulmaButton onClick={handleRemoveFromSession}>Clear</BulmaButton>
+                <BulmaButton onClick={handleSelectEdit}>Edit</BulmaButton>
+                {!isBeginning && <BulmaButton onClick={handleMoveUp}><IoIosArrowUp /></BulmaButton>}
+                {!isEnd && <BulmaButton onClick={handleMoveDown}><IoIosArrowDown /></BulmaButton>}
               </Column>
             )}
           </Column.Group>
@@ -183,7 +184,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       {sessionItems}
       <Container id='sessionSubmit'>
         {formField('sessionDate', 'Session Date')}
-        <Button onClick={handleSubmitSession}>Save session!</Button>
+        BulmaButton onClick={handleSubmitSession}>Save session!
       </Container>
     </Container>
   )
@@ -248,8 +249,8 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
         {formField('difficulty', 'Difficulty', availableDifficulties)}
         {formField('record.passed', 'Passed?', boolPair)}
       </Container>
-      <Button size='small' onClick={cancelSubmit}>Cancel</Button>
-      <Button size='small' onClick={handleSelectSubmit}>{submitText}</Button>
+      <BulmaButton onClick={cancelSubmit}>Cancel</BulmaButton>
+      <BulmaButton onClick={handleSelectSubmit}>{submitText}</BulmaButton>
     </>
   )
 }
@@ -289,8 +290,8 @@ export const Session = () => {
 
     const DeleteConfirmation = () => (
       <>
-        <Button size='small' onClick={cancelDelete}>Cancel Delete</Button>
-        <Button size='small' onClick={submitDelete}>Confirm Delete</Button>
+        <BulmaButton onClick={cancelDelete}>Cancel Delete</BulmaButton>
+        <BulmaButton onClick={submitDelete}>Confirm Delete</BulmaButton>
       </>
     )
 
@@ -311,9 +312,9 @@ export const Session = () => {
           </Column>
           {canDelete && (
             <Column>
-              {(deleteTarget === id
+              {deleteTarget === id
                 ? <DeleteConfirmation />
-                : <Button size='small' onClick={setDeleteConfirmation}>Delete</Button>)}
+                : <BulmaButton onClick={setDeleteConfirmation}>Delete</BulmaButton>}
             </Column>
           )}
         </Column.Group>
@@ -412,8 +413,8 @@ export const SessionDetail = () => {
             <p>Total passed: {passed.length} </p>
           </Column>
           <Column>
-            {username && <Button size='small' onClick={handleToggleEdit}>{editText}</Button>}
-            <Button size='small' onClick={handleBack}>Go back!!</Button>
+            {username && <BulmaButton onClick={handleToggleEdit}>{editText}</BulmaButton>}
+            <BulmaButton onClick={handleBack}>Go back!!</BulmaButton>
           </Column>
         </Column.Group>
         {updating
