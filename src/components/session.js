@@ -184,7 +184,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
       {sessionItems}
       <Container id='sessionSubmit'>
         {formField('sessionDate', 'Session Date')}
-        BulmaButton onClick={handleSubmitSession}>Save session!
+        <BulmaButton onClick={handleSubmitSession}>Save session!</BulmaButton>
       </Container>
     </Container>
   )
