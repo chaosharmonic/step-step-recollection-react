@@ -1,5 +1,5 @@
 import React, { createContext, useReducer } from 'react'
-import SessionReducer from '../reducers/session'
+import SetlistReducer from '../reducers/setlist'
 
 const initialState = {
   // menu: {
@@ -21,7 +21,7 @@ const initialState = {
     // {
     //   id: '',
     //   title: '',
-    //   release: '',
+    //   album: '',
     //   numPads: 1,
     //   difficulty: '', // derive from settings
     //   record: {
@@ -29,10 +29,10 @@ const initialState = {
   }
 }
 
-export const SessionContext = createContext(initialState)
+export const SetlistContext = createContext(initialState)
 
-export const SessionProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(SessionReducer, initialState)
+export const SetlistProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(SetlistReducer, initialState)
 
   const setEntries = (payload) => {
     const action = { type: 'SET_ENTRIES', payload }
@@ -59,12 +59,12 @@ export const SessionProvider = ({ children }) => {
     dispatch(action)
   }
 
-  const addToCurrentSession = (payload) => {
+  const addToCurrentSetlist = (payload) => {
     const action = { type: 'ADD_TO_CURRENT_SESSION', payload }
     dispatch(action)
   }
 
-  const updateCurrentSession = (payload) => {
+  const updateCurrentSetlist = (payload) => {
     const action = { type: 'UPDATE_CURRENT_SESSION', payload }
     dispatch(action)
   }
@@ -77,14 +77,14 @@ export const SessionProvider = ({ children }) => {
       addEntry,
       updateEntry,
       deleteEntry,
-      addToCurrentSession,
-      updateCurrentSession
+      addToCurrentSetlist,
+      updateCurrentSetlist
     }
   }
 
   return (
-    <SessionContext.Provider {...props}>
+    <SetlistContext.Provider {...props}>
       {children}
-    </SessionContext.Provider>
+    </SetlistContext.Provider>
   )
 }

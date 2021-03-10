@@ -4,8 +4,8 @@ import { Link, useHistory, useLocation } from 'react-router-dom'
 import { debounce } from 'lodash-es'
 import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
-import { SessionQueueForm } from './session'
-import { SessionContext } from '../contexts/session'
+import { SetlistQueueForm } from './setlist'
+import { SetlistContext } from '../contexts/setlist'
 import { AuthContext } from '../contexts/auth'
 import { ListEntry } from './scaffold/listEntry'
 import { BulmaButton } from './scaffold/styled'
@@ -30,7 +30,7 @@ const context = SongContext
 const initialFormState = {
   title: '',
   artist: '',
-  release: '',
+  album: '',
   length: 0,
   bpmDisplay: '',
   chart_single_beginner: 0,
@@ -75,7 +75,7 @@ export const Song = () => {
 
   const [menuTarget, setMenuTarget] = useState(initialTargetId)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
-  const [sessionTarget, setSessionTarget] = useState(initialTargetId)
+  const [setlistTarget, setSetlistTarget] = useState(initialTargetId)
   const [loading, setLoading] = useState(true)
 
   const location = useLocation()
@@ -119,13 +119,13 @@ export const Song = () => {
   const handleSetCreating = () => setCreating(true)
 
   const SongEntry = ({ song }) => {
-    const { title, release, _id: id } = song
-    const { addToCurrentSession } = useContext(SessionContext)
+    const { title, album, _id: id } = song
+    const { addToCurrentSetlist } = useContext(SetlistContext)
     const submitDelete = () => handleDeleteRecord(id)
     const setDeletePrompt = () => setDeleteTarget(id)
     const cancelDelete = () => setDeleteTarget(initialTargetId)
 
-    const setSessionPrompt = () => setSessionTarget(id)
+    const setSetlistPrompt = () => setSetlistTarget(id)
 
     const toggleSongMenu = () => menuTarget === id
       ? setMenuTarget(initialTargetId)
@@ -148,20 +148,20 @@ export const Song = () => {
                 <Link to={`/${path}/${id}`}>{title}</Link>
               </h5>
               <h6>
-                Release: <Link to={`/release/${release._id}`}>{release.title}</Link>
+                Album: <Link to={`/album/${album._id}`}>{album.title}</Link>
               </h6>
             </Content>
             {menuTarget === id && (
               <Container className='menu'>
-                {sessionTarget === id
+                {setlistTarget === id
                   ? (
-                    <SessionQueueForm
+                    <SetlistQueueForm
                       song={song}
-                      setOuterTarget={setSessionTarget}
-                      handleSubmit={addToCurrentSession}
+                      setOuterTarget={setSetlistTarget}
+                      handleSubmit={addToCurrentSetlist}
                     />
                   )
-                  : <BulmaButton onClick={setSessionPrompt}>Add to session</BulmaButton>}
+                  : <BulmaButton onClick={setSetlistPrompt}>Add to setlist</BulmaButton>}
                 {isAdmin && (
                   <Container>
                     {deleteTarget === id
@@ -238,14 +238,14 @@ const SongForm = ({ targetId, setSubmitting }) => {
   }
 
   useEffect(() => {
-    const { title, artist, release, length, bpm, charts } = detail
+    const { title, artist, album, length, bpm, charts } = detail
     const { display } = bpm || ''
     const formCharts = charts && charts.length
       ? parseChartData(charts)
       : []
 
     const formData = targetId
-      ? { title, artist, release, length, bpmDisplay: display, ...formCharts }
+      ? { title, artist, album, length, bpmDisplay: display, ...formCharts }
       : initialFormState
 
     setFormState(formData)
@@ -256,12 +256,12 @@ const SongForm = ({ targetId, setSubmitting }) => {
   const handleUpdateRecord = async (id) => {
     const charts = constructCharts(formState)
 
-    const { title, artist, release, length, bpmDisplay } = formState
+    const { title, artist, album, length, bpmDisplay } = formState
     const body = {
       payload: {
         title,
         artist,
-        release,
+        album,
         length,
         bpm: { display: bpmDisplay },
         charts
@@ -312,7 +312,7 @@ const SongForm = ({ targetId, setSubmitting }) => {
         <Column>
           {formField('title', 'Title')}
           {formField('artist', 'Artist')}
-          {formField('release', 'Release')}
+          {formField('album', 'Album')}
           {formField('length', 'Length')}
           {formField('bpmDisplay', 'BPM')}
         </Column>
@@ -347,7 +347,7 @@ export const SongDetail = () => {
     titletranslit,
     artist,
     artisttranslit,
-    release,
+    album,
     length
     // bpmDisplay,
     // charts
@@ -377,7 +377,7 @@ export const SongDetail = () => {
   }, [id])
 
   const PageContent = () => {
-    if (!(title && artist && release)) return null
+    if (!(title && artist && album)) return null
     return (
       <>
         <h4>{title}</h4>
@@ -386,7 +386,7 @@ export const SongDetail = () => {
           <p>Artist: {artist}</p>
           {artisttranslit && <p>Artist (Romanized): {artisttranslit}</p>}
           {length > 0 && <p>Length: {length}</p>}
-          <p>Release: <Link to={`/release/${release._id}`}>{release.title}</Link></p>
+          <p>Album: <Link to={`/album/${album._id}`}>{album.title}</Link></p>
         </Container>
       </>
     )

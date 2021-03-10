@@ -3,15 +3,15 @@ import { Link, useLocation, useHistory } from 'react-router-dom'
 import { Column, Container, Content, Title, Button } from 'rbx'
 import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io'
 import { parse, format, isValid } from 'date-fns'
-import { addSession, getAllSessions, getSessionById, updateSession, deleteSession } from '../api/session'
-import { SessionContext } from '../contexts/session'
+import { addSetlist, getAllSetlists, getSetlistById, updateSetlist, deleteSetlist } from '../api/setlist'
+import { SetlistContext } from '../contexts/setlist'
 import { AuthContext } from '../contexts/auth'
 import { moveIndex } from '../utils/moveIndex'
 import { ListEntry } from './scaffold/listEntry'
 import { BulmaButton } from './scaffold/styled'
 import { generateFormField } from './scaffold/formField'
 
-const context = SessionContext
+const context = SetlistContext
 const [
   createRecord,
   getAllRecords,
@@ -19,17 +19,17 @@ const [
   updateRecord,
   deleteRecord
 ] = [
-  addSession,
-  getAllSessions,
-  getSessionById,
-  updateSession,
-  deleteSession
+  addSetlist,
+  getAllSetlists,
+  getSetlistById,
+  updateSetlist,
+  deleteSetlist
 ]
 const initialTargetId = ''
-const path = 'session'
+const path = 'setlist'
 
-export const SessionQueue = ({ targetId, updateOuterState }) => {
-  const { detail, queue, setDetail, updateCurrentSession, addEntry, updateEntry } = useContext(context)
+export const SetlistQueue = ({ targetId, updateOuterState }) => {
+  const { detail, queue, setDetail, updateCurrentSetlist, addEntry, updateEntry } = useContext(context)
   const { user: { id } } = useContext(AuthContext)
   const { songs, sessionDate = new Date() } = targetId
     ? detail
@@ -75,7 +75,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
 
   const handleUpdateQueue = (arr) => targetId
     ? setEntries(arr)
-    : updateCurrentSession(arr)
+    : updateCurrentSetlist(arr)
 
   const move = (target, destination) => {
     const next = moveIndex(entries, target, destination)
@@ -94,7 +94,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
     handleUpdateQueue(next)
   }
 
-  const handleSubmitSession = () => {
+  const handleSubmitSetlist = () => {
     const formDate = getFormDate()
     if (!formDate) return null
 
@@ -123,10 +123,10 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
 
   const formField = (field, label, options = []) => generateFormField(field, label, formState, setFormValue, options)
 
-  const sessionItems = entries
+  const setlistItems = entries
     .map((song, i) => {
       const { id, title, difficulty, numPads, record: { passed } } = song
-      const handleRemoveFromSession = () => remove(i)
+      const handleRemoveFromSetlist = () => remove(i)
       const isBeginning = i === 0
       const isEnd = i === songs.length - 1
 
@@ -158,7 +158,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
                     </>
                   )
                   : (
-                    <SessionQueueForm
+                    <SetlistQueueForm
                       song={song}
                       setOuterTarget={clearEditTarget}
                       handleSubmit={handleEdit}
@@ -168,7 +168,7 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
             </Column>
             {!editing && (
               <Column>
-                <BulmaButton onClick={handleRemoveFromSession}>Clear</BulmaButton>
+                <BulmaButton onClick={handleRemoveFromSetlist}>Clear</BulmaButton>
                 <BulmaButton onClick={handleSelectEdit}>Edit</BulmaButton>
                 {!isBeginning && <BulmaButton onClick={handleMoveUp}><IoIosArrowUp /></BulmaButton>}
                 {!isEnd && <BulmaButton onClick={handleMoveDown}><IoIosArrowDown /></BulmaButton>}
@@ -181,21 +181,21 @@ export const SessionQueue = ({ targetId, updateOuterState }) => {
 
   return (
     <Container>
-      {sessionItems}
-      <Container id='sessionSubmit'>
+      {setlistItems}
+      <Container id='setlistSubmit'>
         {formField('sessionDate', 'Session Date')}
-        <BulmaButton onClick={handleSubmitSession}>Save session!</BulmaButton>
+        <BulmaButton onClick={handleSubmitSetlist}>Save setlist!</BulmaButton>
       </Container>
     </Container>
   )
 }
 
-export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
+export const SetlistQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
   const { title, charts, difficulty = 'expert' } = song
   const cancelSubmit = () => setOuterTarget(initialTargetId)
 
   const id = song.song || song._id
-  const sessionQueueFormState = {
+  const setlistQueueFormState = {
     song: id,
     title,
     record: {
@@ -204,7 +204,7 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
     numPads: 1,
     difficulty
   }
-  const [formState, setFormState] = useState(sessionQueueFormState)
+  const [formState, setFormState] = useState(setlistQueueFormState)
 
   const handleSelectSubmit = () => {
     handleSubmit({ ...formState, song: id, charts })
@@ -255,7 +255,7 @@ export const SessionQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
   )
 }
 
-export const Session = () => {
+export const Setlist = () => {
   const { entries, queue, setEntries, deleteEntry } = useContext(context)
   const { user: { id: playerId, isAdmin } } = useContext(AuthContext)
 
@@ -268,8 +268,8 @@ export const Session = () => {
 
   useEffect(() => {
     async function getRecords () {
-      const sessions = await getAllRecords()
-      setEntries(sessions)
+      const setlists = await getAllRecords()
+      setEntries(setlists)
     }
     getRecords()
   }, [])
@@ -281,7 +281,7 @@ export const Session = () => {
       : console.log(response)
   }
 
-  const sessionsList = entries.length && entries.map(entry => {
+  const setlistsList = entries.length && entries.map(entry => {
     const { sessionDate, _id: id, player } = entry
     const { username } = player
     const submitDelete = () => handleDeleteRecord(id)
@@ -305,7 +305,7 @@ export const Session = () => {
           <Column size='four-fifths'>
             <Content>
               <h4>
-                <Link to={`/session/${id}`}>{date}</Link>
+                <Link to={`/setlist/${id}`}>{date}</Link>
               </h4>
               <p>Player: {username}</p>
             </Content>
@@ -326,15 +326,15 @@ export const Session = () => {
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
       <Content className='transition'>
-        <h5>Current session:</h5>
+        <h5>Current setlist:</h5>
         {songs.length
-          ? <SessionQueue songs={songs} />
-          : <p className='pageContent'>Session is empty!</p>}
-        {sessionsList
+          ? <SetlistQueue songs={songs} />
+          : <p className='pageContent'>Setlist is empty!</p>}
+        {setlistsList
           ? (
             <>
-              <h5>Saved sessions:</h5>
-              {sessionsList}
+              <h5>Saved setlists:</h5>
+              {setlistsList}
             </>
           )
           : null}
@@ -343,7 +343,7 @@ export const Session = () => {
   )
 }
 
-export const SessionDetail = () => {
+export const SetlistDetail = () => {
   const { detail, setDetail, updateEntry } = useContext(context)
   const { songs, player: { username: player }, sessionDate } = detail
   const { user: { username } } = useContext(AuthContext)
@@ -418,7 +418,7 @@ export const SessionDetail = () => {
           </Column>
         </Column.Group>
         {updating
-          ? <SessionQueue targetId={id} updateOuterState={handleToggleEdit} />
+          ? <SetlistQueue targetId={id} updateOuterState={handleToggleEdit} />
           : PageContent}
       </Container>
     </Content>

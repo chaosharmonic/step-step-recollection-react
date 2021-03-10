@@ -6,13 +6,13 @@ import 'bulmaswatch/cyborg/bulmaswatch.min.css'
 
 import { Home } from './components/home'
 import { LoginForm, LogoutButton } from './components/auth'
-import { Release, ReleaseDetail } from './components/release'
+import { Album, AlbumDetail } from './components/album'
 import { Song, SongDetail } from './components/song'
-import { Session, SessionDetail } from './components/session'
+import { Setlist, SetlistDetail } from './components/setlist'
 import { AuthProvider, AuthContext } from './contexts/auth'
-import { ReleaseProvider } from './contexts/release'
+import { AlbumProvider } from './contexts/album'
 import { SongProvider } from './contexts/song'
-import { SessionProvider } from './contexts/session'
+import { SetlistProvider } from './contexts/setlist'
 
 const Navigation = () => {
   const { user = {} } = useContext(AuthContext)
@@ -24,13 +24,13 @@ const Navigation = () => {
           <Link to='/'>Home</Link>
         </Navbar.Item>
         <Navbar.Item as='div'>
-          <Link to='/release/'>Release</Link>
+          <Link to='/album/'>Album</Link>
         </Navbar.Item>
         <Navbar.Item as='div'>
           <Link to='/song/'>Song</Link>
         </Navbar.Item>
         <Navbar.Item as='div'>
-          <Link to='/session/'>Session</Link>
+          <Link to='/setlist/'>Setlist</Link>
         </Navbar.Item>
         <Navbar.Item as='div'>
           {username
@@ -52,18 +52,18 @@ function App () {
             <Switch>
               <Route exact path='/' component={Home} />
               <Route path='/login' component={LoginForm} />
-              <SessionProvider>
-                <ReleaseProvider>
-                  <Route path='/release/:id' component={ReleaseDetail} />
-                  <Route path='/release/' component={Release} />
-                </ReleaseProvider>
+              <SetlistProvider>
+                <AlbumProvider>
+                  <Route path='/album/:id' component={AlbumDetail} />
+                  <Route path='/album/' component={Album} />
+                </AlbumProvider>
                 <SongProvider>
                   <Route path='/song/:id' component={SongDetail} />
                   <Route path='/song/' component={Song} />
                 </SongProvider>
-                <Route path='/session/:id' component={SessionDetail} />
-                <Route path='/session/' component={Session} />
-              </SessionProvider>
+                <Route path='/setlist/:id' component={SetlistDetail} />
+                <Route path='/setlist/' component={Setlist} />
+              </SetlistProvider>
             </Switch>
           </Container>
         </Section>

@@ -1,5 +1,5 @@
 import React, { createContext, useReducer } from 'react'
-import ReleaseReducer from '../reducers/release'
+import AlbumReducer from '../reducers/album'
 
 const initialState = {
   // options: {
@@ -13,16 +13,16 @@ const initialState = {
   // },
   entries: [], // get from API on opening route
   detail: {
-    release: {},
+    album: {},
     songs: []
     // ,courses: []
   }
 }
 
-export const ReleaseContext = createContext(initialState)
+export const AlbumContext = createContext(initialState)
 
-export const ReleaseProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(ReleaseReducer, initialState)
+export const AlbumProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(AlbumReducer, initialState)
 
   const setEntries = (payload) => {
     const action = { type: 'SET_ENTRIES', payload }
@@ -61,8 +61,8 @@ export const ReleaseProvider = ({ children }) => {
   }
 
   return (
-    <ReleaseContext.Provider {...props}>
+    <AlbumContext.Provider {...props}>
       {children}
-    </ReleaseContext.Provider>
+    </AlbumContext.Provider>
   )
 }

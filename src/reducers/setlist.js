@@ -1,6 +1,6 @@
 import { moveIndex } from '../utils/moveIndex'
 
-const SessionReducer = (state, action) => {
+const SetlistReducer = (state, action) => {
   const { payload } = action
   let newEntries, nextQueue
   switch (action.type) {
@@ -47,4 +47,4 @@ const SessionReducer = (state, action) => {
   }
 }
 
-export default SessionReducer
+export default SetlistReducer

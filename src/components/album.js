@@ -2,10 +2,10 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Title, Content, Container, Column, Loader } from 'rbx'
 import { Link, useLocation, useHistory } from 'react-router-dom'
 import { format, parse, isValid } from 'date-fns'
-import { addRelease, getAllReleases, getReleaseById, updateRelease, deleteRelease } from '../api/release'
-import { ReleaseContext } from '../contexts/release'
-import { SessionQueueForm } from './session'
-import { SessionContext } from '../contexts/session'
+import { addAlbum, getAllAlbums, getAlbumById, updateAlbum, deleteAlbum } from '../api/album'
+import { AlbumContext } from '../contexts/album'
+import { SetlistQueueForm } from './setlist'
+import { SetlistContext } from '../contexts/setlist'
 import { AuthContext } from '../contexts/auth'
 import { BulmaButton } from './scaffold/styled'
 import { ListEntry } from './scaffold/listEntry'
@@ -18,24 +18,24 @@ const [
   updateRecord,
   deleteRecord
 ] = [
-  addRelease,
-  getAllReleases,
-  getReleaseById,
-  updateRelease,
-  deleteRelease
+  addAlbum,
+  getAllAlbums,
+  getAlbumById,
+  updateAlbum,
+  deleteAlbum
 ]
-const context = ReleaseContext
+const context = AlbumContext
 const initialFormState = {
   title: '',
   scale: 'DDR', // DDR (classic), DDR X, ITG
   numPanels: 4, // chart type -- DDR, Pump, StepmaniaX, etc.
   releaseDate: '09/26/1998',
-  releaseType: 'official' // first or third party
+  albumType: 'official' // first or third party
 }
 const initialTargetId = ''
-const path = 'release'
+const path = 'album'
 
-export const Release = () => {
+export const Album = () => {
   const { user: { isAdmin } } = useContext(AuthContext)
   const { entries, setEntries, addEntry, deleteEntry } = useContext(context)
   const [creating, setCreating] = useState(false)
@@ -47,8 +47,8 @@ export const Release = () => {
 
   useEffect(() => {
     async function getRecords () {
-      const releases = await getAllRecords()
-      setEntries(releases)
+      const albums = await getAllRecords()
+      setEntries(albums)
       setLoading(false)
     }
     getRecords()
@@ -63,7 +63,7 @@ export const Release = () => {
 
   const handleSetCreating = () => setCreating(true)
 
-  const releasesList = entries && entries.map(entry => {
+  const albumsList = entries && entries.map(entry => {
     const { title, _id } = entry
     const id = _id
     const confirmDelete = () => handleDeleteRecord(id)
@@ -102,32 +102,32 @@ export const Release = () => {
   return (
     <div className={isHidden ? 'isHidden' : ''}>
       <Title>{path}s</Title>
-      {loading || !releasesList.length
+      {loading || !albumsList.length
         ? <Loader />
         : (
           <Container className='transition'>
-            {releasesList}
+            {albumsList}
           </Container>
         )}
       {isAdmin && <BulmaButton onClick={handleSetCreating}>Add new</BulmaButton>}
-      {creating && <ReleaseForm setSubmitting={setCreating} />}
+      {creating && <AlbumForm setSubmitting={setCreating} />}
     </div>
   )
 }
 
-const ReleaseForm = ({ targetId, setSubmitting }) => {
+const AlbumForm = ({ targetId, setSubmitting }) => {
   const { detail, setDetail, addEntry, updateEntry } = useContext(context)
-  const { release } = detail
+  const { album } = detail
   const [formState, setFormState] = useState(initialFormState)
 
   useEffect(() => {
-    const { title, scale, releaseDate, numPanels, releaseType } = release
+    const { title, scale, releaseDate, numPanels, albumType } = album
     const formData = targetId
-      ? { title, numPanels, releaseDate: format(releaseDate, 'MM/dd/yyyy'), releaseType, scale }
+      ? { title, numPanels, releaseDate: format(releaseDate, 'MM/dd/yyyy'), albumType, scale }
       : initialFormState
 
     setFormState(formData)
-  }, [release])
+  }, [album])
 
   const setFormValue = (event) => {
     const { name, value } = event.target
@@ -144,7 +144,7 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
 
     const response = await updateRecord(id, body)
     if (response._id) {
-      const newDetail = { ...detail, release: response }
+      const newDetail = { ...detail, album: response }
       setDetail(newDetail)
     } else {
       console.log(response)
@@ -194,8 +194,8 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
       {formField('title', 'Title')}
       {formField('scale', 'Scale', ['DDR', 'DDR X', 'ITG'])}
       {formField('numPanels', 'Number of panels')}
-      {formField('releaseDate', 'Release date (MM/DD/YYYY)')}
-      {formField('releaseType', 'Release type', ['Arcade', 'Console', 'Custom'])}
+      {formField('releaseDate', 'Album date (MM/DD/YYYY)')}
+      {formField('albumType', 'Album type', ['Arcade', 'Console', 'Custom'])}
       <BulmaButton onClick={targetId ? submitForm : handleCreateRecord}>
         {submitButtonText}
       </BulmaButton>
@@ -204,14 +204,14 @@ const ReleaseForm = ({ targetId, setSubmitting }) => {
   )
 }
 
-export const ReleaseDetail = () => {
-  const { detail: { release, songs }, setDetail, deleteEntry } = useContext(context)
-  const { addToCurrentSession } = useContext(SessionContext)
+export const AlbumDetail = () => {
+  const { detail: { album, songs }, setDetail, deleteEntry } = useContext(context)
+  const { addToCurrentSetlist } = useContext(SetlistContext)
   const { user: { username, isAdmin } } = useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [sessionTarget, setSessionTarget] = useState(initialTargetId)
+  const [setlistTarget, setSetlistTarget] = useState(initialTargetId)
 
   const handleSelectEdit = () => setUpdating(true)
 
@@ -235,7 +235,7 @@ export const ReleaseDetail = () => {
     const id = song._id
     const { title } = song
 
-    const setSessionPrompt = () => setSessionTarget(id)
+    const setSetlistPrompt = () => setSetlistTarget(id)
 
     return (
       <ListEntry key={id}>
@@ -248,15 +248,15 @@ export const ReleaseDetail = () => {
             </Content>
             {username && (
               <>
-                {sessionTarget === id
+                {setlistTarget === id
                   ? (
-                    <SessionQueueForm
+                    <SetlistQueueForm
                       song={song}
-                      setOuterTarget={setSessionTarget}
-                      handleSubmit={addToCurrentSession}
+                      setOuterTarget={setSetlistTarget}
+                      handleSubmit={addToCurrentSetlist}
                     />
                   )
-                  : <BulmaButton onClick={setSessionPrompt}>Add to session</BulmaButton>}
+                  : <BulmaButton onClick={setSetlistPrompt}>Add to setlist</BulmaButton>}
               </>
             )}
           </Column>
@@ -266,17 +266,17 @@ export const ReleaseDetail = () => {
   })
 
   const PageContent = () => {
-    const { title, releaseDate, scale, numPanels, releaseType } = release
+    const { title, releaseDate, scale, numPanels, albumType } = album
     return (
       <Content className='pageContent'>
         <p>Title: {title}</p>
         {releaseDate &&
-          <p>Release Date: {format(new Date(releaseDate), 'MM/dd/yyyy')}</p>}
+          <p>Album Date: {format(new Date(releaseDate), 'MM/dd/yyyy')}</p>}
         {scale &&
           <p>Scale: {scale}</p>}
         <p>Number of Panels: {numPanels}</p>
-        {releaseType &&
-          <p>Release Type: {releaseType}</p>}
+        {albumType &&
+          <p>Album Type: {albumType}</p>}
       </Content>
     )
   }
@@ -292,7 +292,7 @@ export const ReleaseDetail = () => {
           <h4>Info:</h4>
           {updating
             ? (
-              <ReleaseForm
+              <AlbumForm
                 targetId={routeId}
                 setSubmitting={setUpdating}
               />

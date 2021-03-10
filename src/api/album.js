@@ -1,22 +1,22 @@
 import { callAPI } from '../utils/api'
 
-export const getAllReleases = async () => {
-  const results = await callAPI('release/', 'GET', {})
+export const getAllAlbums = async () => {
+  const results = await callAPI('album/', 'GET', {})
   return results
 }
-export const getReleaseById = async (id) => {
-  const results = await callAPI(`release/entry/${id}`, 'GET', {})
+export const getAlbumById = async (id) => {
+  const results = await callAPI(`album/entry/${id}`, 'GET', {})
   return results
 }
-export const addRelease = async (body) => { // TODO: shape this arg
-  const results = await callAPI('release/add', 'POST', body)
+export const addAlbum = async (body) => { // TODO: shape this arg
+  const results = await callAPI('album/add', 'POST', body)
   return results
 }
-export const updateRelease = async (id, body) => {
-  const results = await callAPI(`release/update/${id}/`, 'PUT', body)
+export const updateAlbum = async (id, body) => {
+  const results = await callAPI(`album/update/${id}/`, 'PUT', body)
   return results
 }
-export const deleteRelease = async (id) => {
-  const results = await callAPI(`release/delete/${id}/`, 'DELETE', {})
+export const deleteAlbum = async (id) => {
+  const results = await callAPI(`album/delete/${id}/`, 'DELETE', {})
   return results
 }

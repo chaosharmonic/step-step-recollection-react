@@ -1,26 +1,26 @@
 import { callAPI } from '../utils/api'
 
-export const getAllSessions = async () => {
-  const results = await callAPI('session/', 'GET', {})
+export const getAllSetlists = async () => {
+  const results = await callAPI('setlist/', 'GET', {})
   return results
 }
-export const getSessionById = async (id) => {
-  const results = await callAPI(`session/entry/${id}`, 'GET', {})
+export const getSetlistById = async (id) => {
+  const results = await callAPI(`setlist/entry/${id}`, 'GET', {})
   return results
 }
-export const getSessionsByPlayerId = async (id) => {
-  const results = await callAPI(`session/player/${id}`, 'GET', {})
+export const getSetlistsByPlayerId = async (id) => {
+  const results = await callAPI(`setlist/player/${id}`, 'GET', {})
   return results
 }
-export const addSession = async (body) => {
-  const results = await callAPI('session/add', 'POST', body)
+export const addSetlist = async (body) => {
+  const results = await callAPI('setlist/add', 'POST', body)
   return results
 }
-export const updateSession = async (id, body) => {
-  const results = await callAPI(`session/update/${id}/`, 'PUT', body)
+export const updateSetlist = async (id, body) => {
+  const results = await callAPI(`setlist/update/${id}/`, 'PUT', body)
   return results
 }
-export const deleteSession = async (id) => {
-  const results = await callAPI(`session/delete/${id}/`, 'DELETE', {})
+export const deleteSetlist = async (id) => {
+  const results = await callAPI(`setlist/delete/${id}/`, 'DELETE', {})
   return results
 }

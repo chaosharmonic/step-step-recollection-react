@@ -1,4 +1,4 @@
-const ReleaseReducer = (state, action) => {
+const AlbumReducer = (state, action) => {
   const { payload } = action
   let newEntries
   switch (action.type) {
@@ -34,4 +34,4 @@ const ReleaseReducer = (state, action) => {
   }
 }
 
-export default ReleaseReducer
+export default AlbumReducer
