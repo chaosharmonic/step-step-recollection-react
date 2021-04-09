@@ -8,6 +8,12 @@ export const getSongById = async (id) => {
   const results = await callAPI(`song/entry/${id}`, 'GET', {})
   return results
 }
+export const getSongsByTitle = async (search) => {
+  const params = new URLSearchParams({ title: search })
+
+  const results = await callAPI(`song/search/title?${params}`, 'GET', {})
+  return results
+}
 export const addSong = async (body) => {
   const results = await callAPI('song/add', 'POST', body)
   return results

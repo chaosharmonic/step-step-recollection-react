@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState, useRef } from 'react'
 import { Column, Container, Title, Content, Loader } from 'rbx'
 import { Link, useHistory, useLocation } from 'react-router-dom'
 import { debounce } from 'lodash-es'
-import { addSong, getAllSongs, getSongById, updateSong, deleteSong } from '../api/song'
+import { addSong, getAllSongs, getSongsByTitle, getSongById, updateSong, deleteSong } from '../api/song'
 import { SongContext } from '../contexts/song'
 import { SetlistQueueForm } from './setlist'
 import { SetlistContext } from '../contexts/setlist'
 import { AuthContext } from '../contexts/auth'
 import { ListEntry } from './scaffold/listEntry'
+import { SearchBar } from './scaffold/SearchBar'
 import { BulmaButton } from './scaffold/styled'
 import { generateFormField } from './scaffold/formField'
 import { Paginate } from './scaffold/paginate'
@@ -71,12 +72,17 @@ export const Song = () => {
   const { entries, pageCount, setEntries, setPages, deleteEntry } = useContext(context)
   const { user: { username, isAdmin } } = useContext(AuthContext)
   const [creating, setCreating] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1) // selectedPage?
+  const [currentPage, setCurrentPage] = useState(1) // change to selectedPage?
 
   const [menuTarget, setMenuTarget] = useState(initialTargetId)
   const [deleteTarget, setDeleteTarget] = useState(initialTargetId)
   const [setlistTarget, setSetlistTarget] = useState(initialTargetId)
   const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
+  // TODO: handle initial data fetching outside this page
+
+  const [songSearchTerms, setSongSearchTerms] = useState('')
+  const [songSearchResults, setSongSearchResults] = useState([])
 
   const location = useLocation()
   const isHidden = !location.pathname.replace(/\//g, '').endsWith(path)
@@ -99,6 +105,9 @@ export const Song = () => {
       : console.log(response)
   }
 
+  // const useDebounce = useRef((callback, time) => (debounce(callback), time)).current
+  //   TODO: get this working/reusable/moved somewhere that I can import from
+
   const debouncePageFetch = useRef(
     debounce(async (page) => await getPage(page), 1000)
   ).current
@@ -108,6 +117,34 @@ export const Song = () => {
     setCurrentPage(page)
     debouncePageFetch(page)
   }
+
+  const getSearchResults = async (title) => {
+    const response = await getSongsByTitle(title)
+    response.docs
+      ? setSongSearchResults(response.docs)
+      : console.log(response)
+  }
+
+  const handleSearchInput = (e) => {
+    const search = e.target.value
+    setSearching(true)
+    setSongSearchResults(null)
+    setSongSearchTerms(search)
+  }
+
+  useEffect(() => {
+    songSearchTerms ? debounceSearch(songSearchTerms) : setSearching(false)
+  }, [songSearchTerms])
+
+  useEffect(() => {
+    songSearchResults && setSearching(false)
+  }, [songSearchResults])
+
+  const debounceSearch = useRef(
+    debounce(async (search) => await getSearchResults(search), 1000)
+  ).current
+
+  const clearSearchInput = () => setSongSearchTerms('')
 
   const handleDeleteRecord = async (id) => {
     const response = await deleteRecord(id)
@@ -160,7 +197,7 @@ export const Song = () => {
                       setOuterTarget={setSetlistTarget}
                       handleSubmit={addToCurrentSetlist}
                     />
-                  )
+                    )
                   : <BulmaButton onClick={setSetlistPrompt}>Add to setlist</BulmaButton>}
                 {isAdmin && (
                   <Container>
@@ -185,6 +222,21 @@ export const Song = () => {
   }
 
   const songsList = entries && entries.map(song => <SongEntry key={song._id} song={song} />)
+  const searchResults = songSearchResults && songSearchResults.length
+    ? songSearchResults.map(song => <SongEntry key={song._id} song={song} />)
+    : null
+
+  // TODO: filter options:
+  //  * album
+  //  * difficulty
+  //    * has defined chart type
+  //    * chart matches defined level
+  //    * include any
+  //  * year?
+  //   * this might get dodgy w rolling releases --
+  //     arcade DLC, long-running simfile packs, etc
+
+  const isLoading = searching || loading || !songsList.length
 
   return (
     <div className={isHidden ? 'isHidden' : ''}>
@@ -193,19 +245,26 @@ export const Song = () => {
         ? <SongForm setSubmitting={setCreating} />
         : isAdmin &&
           <BulmaButton onClick={handleSetCreating}>Add new</BulmaButton>}
-      <Paginate
-        getPage={handleChangePage}
-        entries={entries}
-        currentPage={currentPage}
-        pageCount={pageCount}
+      <SearchBar
+        handleSearchInput={handleSearchInput}
+        clearSearchInput={clearSearchInput}
+        searchTerms={songSearchTerms}
+        searchField='title'
       />
-      {loading || !songsList.length
+      {!searching && !searchResults &&
+        <Paginate
+          getPage={handleChangePage}
+          entries={entries}
+          currentPage={currentPage}
+          pageCount={pageCount}
+        />}
+      {isLoading
         ? <Loader />
         : (
           <Container className='transition'>
-            {songsList}
+            {searchResults || songsList}
           </Container>
-        )}
+          )}
     </div>
   )
 }
@@ -405,7 +464,7 @@ export const SongDetail = () => {
               targetId={id}
               setSubmitting={setUpdating}
             />
-          )
+            )
           : <PageContent />}
         {isAdmin &&
           <BulmaButton onClick={handleToggleEdit}>{editText}</BulmaButton>}

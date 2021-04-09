@@ -20,7 +20,7 @@
 }
 
 
-section, .container, .loader, #login {
+section, .container, .loader, #login, #search {
   margin: 0 auto;
 }
 section {
@@ -40,6 +40,20 @@ section {
 .title {
   text-align: center;
   text-transform: capitalize;
+}
+
+#search {
+  max-width: 75%;
+  padding: 5% 10%;
+  display: flex;
+  align-items: center;
+  justify-items: space-between;
+}
+
+#search input {
+  width: 80%;
+  margin-right: max(5%, 25px);
+  min-width: 50%;
 }
 
 #login input {
