@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useLocation, useHistory } from 'react-router-dom'
-import { Column, Container, Content, Title, Button } from 'rbx'
+import { Column, Container, Content, Title } from 'rbx'
 import { IoIosArrowUp, IoIosArrowDown } from 'react-icons/io'
 import { parse, format, isValid } from 'date-fns'
 import { addSetlist, getAllSetlists, getSetlistById, updateSetlist, deleteSetlist } from '../api/setlist'
@@ -115,6 +115,8 @@ export const SetlistQueue = ({ targetId, updateOuterState }) => {
 
   const setFormValue = (event) => {
     const { name, value } = event.target
+    console.log({ name, value })
+
     const nextState = { ...formState }
     nextState[name] = value
 
@@ -125,7 +127,7 @@ export const SetlistQueue = ({ targetId, updateOuterState }) => {
 
   const setlistItems = entries
     .map((song, i) => {
-      const { id, title, difficulty, numPads, record: { passed } } = song
+      const { id, title, difficulty, numPads, record: { passed, percent } } = song
       const handleRemoveFromSetlist = () => remove(i)
       const isBeginning = i === 0
       const isEnd = i === songs.length - 1
@@ -154,16 +156,20 @@ export const SetlistQueue = ({ targetId, updateOuterState }) => {
                       <p>{style}, {difficulty}</p>
                       {/* <p>Level: placeholder</p>
                         TODO: API and form updates */}
-                      <p>Record: {passed ? 'Cleared' : 'Failed'}</p>
+                      <p>Record:</p>
+                      <ul>
+                        <li>{passed ? 'Cleared' : 'Failed'}</li>
+                        {percent && (<li>{percent}%</li>)}
+                      </ul>
                     </>
-                  )
+                    )
                   : (
                     <SetlistQueueForm
                       song={song}
                       setOuterTarget={clearEditTarget}
                       handleSubmit={handleEdit}
                     />
-                  )}
+                    )}
               </Content>
             </Column>
             {!editing && (
@@ -191,23 +197,36 @@ export const SetlistQueue = ({ targetId, updateOuterState }) => {
 }
 
 export const SetlistQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
-  const { title, charts, difficulty = 'expert' } = song
   const cancelSubmit = () => setOuterTarget(initialTargetId)
+  const { title, charts, difficulty = 'expert' } = song // TODO: difficulty as user setting
 
   const id = song.song || song._id
+  const passed = song.record ? song.record.passed : true
+  const percent = song.record ? song.record.percent : null
+
   const setlistQueueFormState = {
     song: id,
     title,
-    record: {
-      passed: true
-    },
+    passed,
+    percent,
     numPads: 1,
     difficulty
   }
   const [formState, setFormState] = useState(setlistQueueFormState)
 
   const handleSelectSubmit = () => {
-    handleSubmit({ ...formState, song: id, charts })
+    const { title, passed, percent, numPads, difficulty } = formState
+    handleSubmit({
+      song: id,
+      title,
+      numPads,
+      difficulty,
+      record: {
+        passed: JSON.parse(passed),
+        percent: Number(percent)
+      },
+      charts
+    })
     setOuterTarget(initialTargetId)
   }
 
@@ -247,7 +266,8 @@ export const SetlistQueueForm = ({ song, setOuterTarget, handleSubmit }) => {
       <Container className='menuOptions'>
         {formField('numPads', 'Style', availablePads)}
         {formField('difficulty', 'Difficulty', availableDifficulties)}
-        {formField('record.passed', 'Passed?', boolPair)}
+        {formField('passed', 'Passed?', boolPair)}
+        {formField('percent', 'Percent')}
       </Container>
       <BulmaButton onClick={cancelSubmit}>Cancel</BulmaButton>
       <BulmaButton onClick={handleSelectSubmit}>{submitText}</BulmaButton>
@@ -336,7 +356,7 @@ export const Setlist = () => {
               <h5>Saved setlists:</h5>
               {setlistsList}
             </>
-          )
+            )
           : null}
       </Content>
     </div>
@@ -367,7 +387,7 @@ export const SetlistDetail = () => {
     getDetail()
   }, [id])
 
-  const songRecords = songs.map(({ id, title, numPads, difficulty, record: { passed } }) => {
+  const songRecords = songs.map(({ id, title, numPads, difficulty, record: { passed, percent } }) => {
     const style = numPads === 2 ? 'Double' : 'Single'
     return (
       <ListEntry key={id}>
@@ -378,7 +398,11 @@ export const SetlistDetail = () => {
                 <Link to={`/song/${id}`}>{title}</Link>
               </h5>
               <p>{style}, {difficulty}</p>
-              <p>Record: {passed ? 'Cleared' : 'Failed'}</p>
+              <p>Record:</p>
+              <ul>
+                <li>{passed ? 'Cleared' : 'Failed'}</li>
+                {percent && (<li>{percent}%</li>)}
+              </ul>
             </Content>
           </Column>
         </Column.Group>
@@ -386,7 +410,7 @@ export const SetlistDetail = () => {
     )
   })
 
-  const passed = songs.filter(song => song.record.passed)
+  const passedSongs = songs.filter(song => song.record.passed)
   const date = setlistDate && format(new Date(setlistDate), 'MM/dd/yyyy')
 
   const PageContent = (
@@ -410,7 +434,7 @@ export const SetlistDetail = () => {
             <p>Date: {date}</p>
             <p>Player: {player}</p>
             <p>Total songs: {songs.length} </p>
-            <p>Total passed: {passed.length} </p>
+            <p>Total passed: {passedSongs.length} </p>
           </Column>
           <Column>
             {username && <BulmaButton onClick={handleToggleEdit}>{editText}</BulmaButton>}
