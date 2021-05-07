@@ -12,9 +12,15 @@ import { Field, Control, Label, Input, Select } from 'rbx'
 export const generateFormField = (field, label, state, handleSetFormValue, options = []) => {
   const value = state[field]
 
+  const getInputType = () => {
+    if (field.toLowerCase() === 'password') return field
+    if (field.toLowerCase() === 'percent') return 'number'
+    return 'text'
+  }
+
   const TextInput = () => (
     <Input
-      type={field === 'password' ? 'password' : 'text'}
+      type={getInputType()}
       placeholder={label}
       name={field}
       value={value}
