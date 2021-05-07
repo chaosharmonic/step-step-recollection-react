@@ -14,7 +14,7 @@ const initialState = {
       username: ''
     },
     songs: [],
-    sessionDate: ''
+    setlistDate: ''
   },
   queue: {
     songs: []

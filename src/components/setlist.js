@@ -31,21 +31,21 @@ const path = 'setlist'
 export const SetlistQueue = ({ targetId, updateOuterState }) => {
   const { detail, queue, setDetail, updateCurrentSetlist, addEntry, updateEntry } = useContext(context)
   const { user: { id } } = useContext(AuthContext)
-  const { songs, sessionDate = new Date() } = targetId
+  const { songs, setlistDate = new Date() } = targetId
     ? detail
     : queue
 
   const [editTarget, setEditTarget] = useState(null)
   const clearEditTarget = () => setEditTarget(null)
 
-  const formattedDate = format(new Date(sessionDate), 'MM/dd/yyyy')
-  const [formState, setFormState] = useState({ sessionDate: formattedDate })
+  const formattedDate = format(new Date(setlistDate), 'MM/dd/yyyy')
+  const [formState, setFormState] = useState({ setlistDate: formattedDate })
 
   const [entries, setEntries] = useState(songs)
   useEffect(() => setEntries(songs), [songs])
 
   const getFormDate = () => {
-    const date = parse(formState.sessionDate, 'MM/dd/yyyy', new Date())
+    const date = parse(formState.setlistDate, 'MM/dd/yyyy', new Date())
 
     if (!isValid(date)) {
       console.log('Invalid date!')
@@ -103,7 +103,7 @@ export const SetlistQueue = ({ targetId, updateOuterState }) => {
     const body = {
       payload: {
         songs: [...entries],
-        sessionDate: formDate,
+        setlistDate: formDate,
         ...player
       }
     }
@@ -183,7 +183,7 @@ export const SetlistQueue = ({ targetId, updateOuterState }) => {
     <Container>
       {setlistItems}
       <Container id='setlistSubmit'>
-        {formField('sessionDate', 'Session Date')}
+        {formField('setlistDate', 'Session Date')}
         <BulmaButton onClick={handleSubmitSetlist}>Save setlist!</BulmaButton>
       </Container>
     </Container>
@@ -282,7 +282,7 @@ export const Setlist = () => {
   }
 
   const setlistsList = entries.length && entries.map(entry => {
-    const { sessionDate, _id: id, player } = entry
+    const { setlistDate, _id: id, player } = entry
     const { username } = player
     const submitDelete = () => handleDeleteRecord(id)
     const setDeleteConfirmation = () => setDeleteTarget(id)
@@ -295,7 +295,7 @@ export const Setlist = () => {
       </>
     )
 
-    const date = format(new Date(sessionDate), 'MM/dd/yyyy')
+    const date = format(new Date(setlistDate), 'MM/dd/yyyy')
 
     const canDelete = playerId === player.id || isAdmin
 
@@ -345,7 +345,7 @@ export const Setlist = () => {
 
 export const SetlistDetail = () => {
   const { detail, setDetail, updateEntry } = useContext(context)
-  const { songs, player: { username: player }, sessionDate } = detail
+  const { songs, player: { username: player }, setlistDate } = detail
   const { user: { username } } = useContext(AuthContext)
   const history = useHistory()
   const [updating, setUpdating] = useState(false)
@@ -387,7 +387,7 @@ export const SetlistDetail = () => {
   })
 
   const passed = songs.filter(song => song.record.passed)
-  const date = sessionDate && format(new Date(sessionDate), 'MM/dd/yyyy')
+  const date = setlistDate && format(new Date(setlistDate), 'MM/dd/yyyy')
 
   const PageContent = (
     <Container className='transition'>
