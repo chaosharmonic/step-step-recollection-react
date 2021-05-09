@@ -3,17 +3,17 @@ import Cookie from 'js-cookie'
 import { jwt_decode } from 'jwt-decode-es'
 import AuthReducer from '../reducers/auth'
 
-const isDevelop = null //import.meta.env.MODE === 'development'
+const isDevelop = null // import.meta.env.MODE === 'development'
 
 const adminUser = isDevelop
   ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_USERNAME
   : null
 const adminId = isDevelop
-  ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_ID 
+  ? import.meta.env.SNOWPACK_PUBLIC_ADMIN_PLAYER_ID
   : null
 
 const token = Cookie.get('x-access-token')
-const { 
+const {
   _id: id = adminId,
   username = adminUser,
   isAdmin = Boolean(adminId)
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const clearUser = () => {
-    const action = { type: 'CLEAR_USER', initialState }
+    const action = { type: 'CLEAR_USER', payload: initialState }
     dispatch(action)
   }
 
